@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* Optional: Add your custom base styles here */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
