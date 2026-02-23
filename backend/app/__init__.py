@@ -43,15 +43,14 @@ def create_app():
         raise ValueError("MONGO_URI is missing from .env file")
 
     CORS(app, resources={
-        r"/api/*": {
-            "origins": [
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175",
-            ],
-            "supports_credentials": False,
-        }
-    })
+    r"/api/*": {
+        "origins": [
+            "https://swiftmall.onrender.com",
+            "http://localhost:5173",
+        ],
+        "supports_credentials": False,
+    }
+})
 
     global db
     try:
