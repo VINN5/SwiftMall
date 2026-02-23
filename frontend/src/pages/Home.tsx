@@ -50,6 +50,15 @@ const Home: React.FC = () => {
     return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
   }, []);
 
+  const features = [
+    { icon: '🛒', title: 'Shop Anything', desc: 'Browse thousands of products across every category — from electronics to fresh produce, all in one place.' },
+    { icon: '📱', title: 'Pay with M-Pesa', desc: 'Checkout in seconds with M-Pesa STK push. No card required, no hassle — just your PIN.' },
+    { icon: '🏪', title: 'Sell with Ease', desc: 'Open your store in minutes. Manage products, track orders, and receive payouts directly to your M-Pesa.' },
+    { icon: '📦', title: 'Real-Time Tracking', desc: 'Follow your order every step of the way, from processing to delivery, right from your dashboard.' },
+    { icon: '🔒', title: 'Trusted & Secure', desc: 'Every transaction is protected. Buyer and seller accounts are verified for a safe marketplace experience.' },
+    { icon: '⚡', title: 'Built for Speed', desc: 'Snappy performance on any device. SwiftMall is optimized for Kenya mobile-first users.' },
+  ];
+
   return (
     <>
       <style>{`
@@ -76,7 +85,6 @@ const Home: React.FC = () => {
           z-index: 0;
         }
 
-        /* Glow orbs */
         .orb {
           position: fixed;
           border-radius: 50%;
@@ -108,7 +116,6 @@ const Home: React.FC = () => {
         @keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-50px, -60px); } }
         @keyframes drift3 { from { transform: translate(-50%,-50%); } to { transform: translate(-45%,-55%); } }
 
-        /* Nav */
         .nav {
           position: relative; z-index: 10;
           display: flex; align-items: center; justify-content: space-between;
@@ -116,9 +123,7 @@ const Home: React.FC = () => {
         }
         .nav-logo {
           font-family: 'Instrument Serif', serif;
-          font-size: 26px;
-          color: #fff;
-          letter-spacing: -0.5px;
+          font-size: 26px; color: #fff; letter-spacing: -0.5px;
         }
         .nav-logo span { color: #4d8dff; font-style: italic; }
         .nav-links { display: flex; gap: 32px; }
@@ -132,18 +137,15 @@ const Home: React.FC = () => {
           padding: 10px 24px; border-radius: 999px;
           background: rgba(77,141,255,0.15); border: 1px solid rgba(77,141,255,0.4);
           color: #7ab0ff; font-size: 13px; font-weight: 600;
-          text-decoration: none; letter-spacing: 0.02em;
-          transition: all 0.2s;
+          text-decoration: none; transition: all 0.2s;
         }
         .nav-cta:hover { background: rgba(77,141,255,0.25); color: #fff; }
 
-        /* Hero */
         .hero {
           position: relative; z-index: 10;
           flex: 1; display: flex; flex-direction: column;
           align-items: center; justify-content: center;
-          text-align: center;
-          padding: 60px 24px 80px;
+          text-align: center; padding: 60px 24px 80px;
         }
 
         .hero-badge {
@@ -156,8 +158,7 @@ const Home: React.FC = () => {
         }
         .hero-badge-dot {
           width: 6px; height: 6px; border-radius: 50%;
-          background: #4d8dff;
-          box-shadow: 0 0 8px #4d8dff;
+          background: #4d8dff; box-shadow: 0 0 8px #4d8dff;
           animation: pulse 2s infinite;
         }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
@@ -165,9 +166,7 @@ const Home: React.FC = () => {
         .hero-title {
           font-family: 'Instrument Serif', serif;
           font-size: clamp(52px, 9vw, 110px);
-          line-height: 0.95;
-          letter-spacing: -2px;
-          color: #fff;
+          line-height: 0.95; letter-spacing: -2px; color: #fff;
           margin-bottom: 12px;
           animation: fadeUp 0.8s 0.1s ease both;
         }
@@ -180,12 +179,9 @@ const Home: React.FC = () => {
         }
 
         .hero-sub {
-          font-size: clamp(15px, 2vw, 19px);
-          font-weight: 300;
-          color: rgba(232,240,255,0.5);
-          max-width: 520px;
-          line-height: 1.7;
-          margin: 28px auto 52px;
+          font-size: clamp(15px, 2vw, 19px); font-weight: 300;
+          color: rgba(232,240,255,0.5); max-width: 520px;
+          line-height: 1.7; margin: 28px auto 52px;
           animation: fadeUp 0.8s 0.2s ease both;
         }
         .hero-sub strong { color: rgba(232,240,255,0.8); font-weight: 500; }
@@ -200,35 +196,25 @@ const Home: React.FC = () => {
           padding: 16px 36px; border-radius: 999px;
           background: linear-gradient(135deg, #3b7bff, #6c40f0);
           color: #fff; font-family: 'Outfit', sans-serif;
-          font-size: 15px; font-weight: 600;
-          text-decoration: none; letter-spacing: 0.01em;
+          font-size: 15px; font-weight: 600; text-decoration: none;
           box-shadow: 0 0 40px rgba(59,123,255,0.35), 0 2px 8px rgba(0,0,0,0.3);
           transition: all 0.25s;
-          position: relative; overflow: hidden;
-        }
-        .btn-primary::after {
-          content: ''; position: absolute; inset: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-          opacity: 0; transition: opacity 0.2s;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(59,123,255,0.5), 0 4px 16px rgba(0,0,0,0.3); }
-        .btn-primary:hover::after { opacity: 1; }
 
         .btn-secondary {
           display: inline-flex; align-items: center; gap: 10px;
           padding: 16px 36px; border-radius: 999px;
           background: transparent; border: 1px solid rgba(232,240,255,0.15);
           color: rgba(232,240,255,0.7); font-family: 'Outfit', sans-serif;
-          font-size: 15px; font-weight: 500;
-          text-decoration: none; letter-spacing: 0.01em;
+          font-size: 15px; font-weight: 500; text-decoration: none;
           transition: all 0.25s; backdrop-filter: blur(10px);
         }
         .btn-secondary:hover { border-color: rgba(232,240,255,0.35); color: #fff; transform: translateY(-2px); }
 
-        /* Stats bar */
         .stats-bar {
           position: relative; z-index: 10;
-          display: flex; justify-content: center; gap: 0;
+          display: flex; justify-content: center;
           padding: 0 24px 80px;
           animation: fadeUp 0.8s 0.5s ease both;
         }
@@ -240,20 +226,16 @@ const Home: React.FC = () => {
         .stat-item:first-child { border-left: none; }
         .stat-num {
           font-family: 'Instrument Serif', serif;
-          font-size: 32px; color: #fff;
-          line-height: 1;
+          font-size: 32px; color: #fff; line-height: 1;
         }
         .stat-label {
           font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
-          text-transform: uppercase; color: rgba(232,240,255,0.35);
-          margin-top: 6px;
+          text-transform: uppercase; color: rgba(232,240,255,0.35); margin-top: 6px;
         }
 
-        /* Features */
         .features {
           position: relative; z-index: 10;
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          display: grid; grid-template-columns: repeat(3, 1fr);
           gap: 1px;
           background: rgba(232,240,255,0.06);
           border-top: 1px solid rgba(232,240,255,0.06);
@@ -261,25 +243,13 @@ const Home: React.FC = () => {
           margin: 0 0 80px;
         }
         .feature {
-          background: #050a14;
-          padding: 40px 36px;
-          transition: background 0.2s;
+          background: #050a14; padding: 40px 36px; transition: background 0.2s;
         }
         .feature:hover { background: rgba(77,141,255,0.04); }
-        .feature-icon {
-          font-size: 28px; margin-bottom: 18px;
-          display: block;
-        }
-        .feature-title {
-          font-size: 16px; font-weight: 600; color: #e8f0ff;
-          margin-bottom: 10px;
-        }
-        .feature-desc {
-          font-size: 13px; color: rgba(232,240,255,0.4);
-          line-height: 1.7;
-        }
+        .feature-icon { font-size: 28px; margin-bottom: 18px; display: block; }
+        .feature-title { font-size: 16px; font-weight: 600; color: #e8f0ff; margin-bottom: 10px; }
+        .feature-desc { font-size: 13px; color: rgba(232,240,255,0.4); line-height: 1.7; }
 
-        /* CTA Section */
         .cta-section {
           position: relative; z-index: 10;
           text-align: center; padding: 0 24px 100px;
@@ -287,15 +257,10 @@ const Home: React.FC = () => {
         }
         .cta-title {
           font-family: 'Instrument Serif', serif;
-          font-size: clamp(30px, 5vw, 52px);
-          color: #fff; margin-bottom: 16px;
+          font-size: clamp(30px, 5vw, 52px); color: #fff; margin-bottom: 16px;
         }
-        .cta-sub {
-          font-size: 15px; color: rgba(232,240,255,0.4);
-          margin-bottom: 36px;
-        }
+        .cta-sub { font-size: 15px; color: rgba(232,240,255,0.4); margin-bottom: 36px; }
 
-        /* Footer */
         .footer {
           position: relative; z-index: 10;
           border-top: 1px solid rgba(232,240,255,0.06);
@@ -313,7 +278,7 @@ const Home: React.FC = () => {
           .nav { padding: 20px 24px; }
           .nav-links { display: none; }
           .features { grid-template-columns: 1fr; }
-          .stats-bar { flex-wrap: wrap; gap: 0; }
+          .stats-bar { flex-wrap: wrap; }
           .stat-item { flex: 1 1 40%; border-left: none; border-top: 1px solid rgba(232,240,255,0.07); }
           .footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px; }
         }
@@ -325,7 +290,6 @@ const Home: React.FC = () => {
         <div className="orb orb-2" />
         <div className="orb orb-3" />
 
-        {/* Nav */}
         <nav className="nav">
           <div className="nav-logo">Swift<span>Mall</span></div>
           <div className="nav-links">
@@ -336,33 +300,24 @@ const Home: React.FC = () => {
           <a href="/login" className="nav-cta">Sign In</a>
         </nav>
 
-        {/* Hero */}
         <section className="hero">
           <div className="hero-badge">
             <span className="hero-badge-dot" />
             Kenya's Modern Marketplace
           </div>
-
           <h1 className="hero-title">
             Commerce<br />
             <span className="hero-title-accent">Redefined.</span>
           </h1>
-
           <p className="hero-sub">
             SwiftMall connects <strong>Kenyan buyers and sellers</strong> on a platform built for speed, simplicity, and trust. Pay securely with <strong>M-Pesa</strong>.
           </p>
-
           <div className="hero-actions">
-            <a href="/register" className="btn-primary">
-              Start Shopping →
-            </a>
-            <a href="/login" className="btn-secondary">
-              Sign In
-            </a>
+            <a href="/register" className="btn-primary">Start Shopping →</a>
+            <a href="/login" className="btn-secondary">Sign In</a>
           </div>
         </section>
 
-        {/* Stats */}
         <div className="stats-bar">
           <div className="stat-item">
             <div className="stat-num">M-Pesa</div>
@@ -382,16 +337,8 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Features */}
         <div className="features" id="features">
-          {[
-            { icon: '🛒', title: 'Shop Anything', desc: 'Browse thousands of products across every category — from electronics to fresh produce, all in one place.' },
-            { icon: '📱', title: 'Pay with M-Pesa', desc: 'Checkout in seconds with M-Pesa STK push. No card required, no hassle — just your PIN.' },
-            { icon: '🏪', title: 'Sell with Ease', desc: 'Open your store in minutes. Manage products, track orders, and receive payouts directly to your M-Pesa.' },
-            { icon: '📦', title: 'Real-Time Tracking', desc: 'Follow your order every step of the way, from processing to delivery, right from your dashboard.' },
-            { icon: '🔒', title: 'Trusted & Secure', desc: 'Every transaction is protected. Buyer and seller accounts are verified for a safe marketplace experience.' },
-            { icon: '⚡', title: 'Built for Speed', desc: "Snappy performance on any device. SwiftMall is optimized for Kenya's mobile-first users." },
-          ].map(f => (
+          {features.map(f => (
             <div className="feature" key={f.title}>
               <span className="feature-icon">{f.icon}</span>
               <div className="feature-title">{f.title}</div>
@@ -400,20 +347,18 @@ const Home: React.FC = () => {
           ))}
         </div>
 
-        {/* CTA */}
         <section className="cta-section">
           <h2 className="cta-title">Ready to get started?</h2>
-          <p className="cta-sub">Join SwiftMall today — it's free to sign up.</p>
+          <p className="cta-sub">Join SwiftMall today — it is free to sign up.</p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="/register" className="btn-primary">Create Account →</a>
             <a href="/login" className="btn-secondary">Already have an account</a>
           </div>
         </section>
 
-        {/* Footer */}
         <footer className="footer">
-          <div>© 2026 SwiftMall. Proudly Kenyan.</div>
-          <div>Built with ❤️ for the Kenyan market</div>
+          <div>2026 SwiftMall. Proudly Kenyan.</div>
+          <div>Built with love for the Kenyan market</div>
         </footer>
       </div>
     </>
@@ -421,4 +366,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-```
