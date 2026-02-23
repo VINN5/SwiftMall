@@ -125,21 +125,21 @@ function Skeleton({ height = 60, radius = 10 }: { height?: number; radius?: numb
 
 function EmptyState({ icon, message }: { icon: string; message: string }) {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--muted)' }}>
-      <div style={{ fontSize: 44, marginBottom: 12 }}>{icon}</div>
-      <div style={{ fontSize: 14, lineHeight: 1.6 }}>{message}</div>
+    <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--muted)' }}>
+      <div style={{ fontSize: 40, marginBottom: 10 }}>{icon}</div>
+      <div style={{ fontSize: 13, lineHeight: 1.6 }}>{message}</div>
     </div>
   );
 }
 
 function StatCard({ icon, label, value, sub, loading, accent }: { icon: string; label: string; value?: string; sub?: string; loading: boolean; accent?: string }) {
   return (
-    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 80, borderRadius: '0 16px 0 80px', background: accent ? `${accent}18` : 'rgba(34,211,238,0.06)' }} />
-      <span style={{ fontSize: 26 }}>{icon}</span>
-      <div style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 600 }}>{label}</div>
-      {loading ? <Skeleton height={28} radius={6} /> : <div style={{ fontSize: 24, fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>{value ?? '—'}</div>}
-      {sub && !loading && <div style={{ fontSize: 11, color: 'var(--muted)' }}>{sub}</div>}
+    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 14, padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 6, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, right: 0, width: 60, height: 60, borderRadius: '0 14px 0 60px', background: accent ? `${accent}18` : 'rgba(34,211,238,0.06)' }} />
+      <span style={{ fontSize: 22 }}>{icon}</span>
+      <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 600, lineHeight: 1.2 }}>{label}</div>
+      {loading ? <Skeleton height={22} radius={6} /> : <div style={{ fontSize: 20, fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', lineHeight: 1.1 }}>{value ?? '—'}</div>}
+      {sub && !loading && <div style={{ fontSize: 10, color: 'var(--muted)' }}>{sub}</div>}
     </div>
   );
 }
@@ -164,10 +164,8 @@ function MiniChart({ data, color = 'var(--accent)' }: { data: number[]; color?: 
 }
 
 function Stars({ rating }: { rating: number }) {
-  return <span style={{ color: '#f59e0b', fontSize: 13, letterSpacing: 1 }}>{Array.from({ length: 5 }, (_, i) => i < Math.round(rating) ? '★' : '☆').join('')}</span>;
+  return <span style={{ color: '#f59e0b', fontSize: 12, letterSpacing: 1 }}>{Array.from({ length: 5 }, (_, i) => i < Math.round(rating) ? '★' : '☆').join('')}</span>;
 }
-
-
 
 // ── Image Upload component ────────────────────────────────────────────────────
 function ImageUpload({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
@@ -191,13 +189,13 @@ function ImageUpload({ value, onChange }: { value: string | null; onChange: (v: 
 
   return (
     <div>
-      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--muted)', marginBottom: 8, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--muted)', marginBottom: 8, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
         Product Photo (optional)
       </label>
 
       {value ? (
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <img src={value} alt="preview" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 12, border: '1px solid var(--border)', display: 'block' }} />
+        <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+          <img src={value} alt="preview" style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 12, border: '1px solid var(--border)', display: 'block' }} />
           <button
             onClick={() => onChange(null)}
             style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
@@ -214,12 +212,12 @@ function ImageUpload({ value, onChange }: { value: string | null; onChange: (v: 
           onClick={() => fileRef.current?.click()}
           onDrop={handleDrop}
           onDragOver={e => e.preventDefault()}
-          style={{ border: '2px dashed var(--border)', borderRadius: 12, padding: '28px 20px', textAlign: 'center', cursor: 'pointer', transition: 'border-color 0.2s, background 0.2s', background: 'var(--card-alt)' }}
+          style={{ border: '2px dashed var(--border)', borderRadius: 12, padding: '22px 16px', textAlign: 'center', cursor: 'pointer', transition: 'border-color 0.2s, background 0.2s', background: 'var(--card-alt)' }}
           onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)'; }}>
-          <div style={{ fontSize: 28, marginBottom: 8 }}>📷</div>
-          <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 500 }}>Click to upload or drag & drop</div>
-          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>JPEG, PNG, WebP · Max 2 MB</div>
+          <div style={{ fontSize: 26, marginBottom: 6 }}>📷</div>
+          <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 500 }}>Tap to upload or drag & drop</div>
+          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>JPEG, PNG, WebP · Max 2 MB</div>
         </div>
       )}
 
@@ -264,7 +262,7 @@ function ProductModal({ onClose, onSave, editing }: { onClose: () => void; onSav
       category:       form.category,
       emoji:          form.emoji,
       stock:          Number(form.stock),
-      image:          image,   // base64 or null
+      image:          image,
     });
     setSaving(false);
     onClose();
@@ -281,13 +279,16 @@ function ProductModal({ onClose, onSave, editing }: { onClose: () => void; onSav
   ];
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 20, padding: 28, width: '100%', maxWidth: 540, maxHeight: '92vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+      {/* Bottom sheet on mobile, centered modal on desktop */}
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', padding: '20px 18px 32px', width: '100%', maxWidth: 580, maxHeight: '93vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Drag handle */}
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--border)', alignSelf: 'center', marginBottom: 4 }} />
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700 }}>{editing ? '✏️ Edit Product' : '➕ New Product'}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 20 }}>✕</button>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 700 }}>{editing ? '✏️ Edit Product' : '➕ New Product'}</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 20, padding: 4 }}>✕</button>
         </div>
 
         {/* Image upload */}
@@ -296,21 +297,21 @@ function ProductModal({ onClose, onSave, editing }: { onClose: () => void; onSav
         {/* Text fields */}
         {fields.map(([label, key, type]) => (
           <div key={key}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--muted)', marginBottom: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{label}</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--muted)', marginBottom: 5, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{label}</label>
             <input
               type={type}
               value={(form as Record<string, string>)[key]}
               onChange={e => handle(key, e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: 14, outline: 'none' }}
+              style={{ width: '100%', padding: '12px 14px', background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: 16, outline: 'none' }}
             />
           </div>
         ))}
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600 }}>Cancel</button>
+          <button onClick={onClose} style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: '1px solid var(--border)', background: 'transparent', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 14 }}>Cancel</button>
           <button onClick={submit} disabled={saving || !form.name || !form.price}
-            style={{ flex: 2, padding: '12px 0', borderRadius: 10, border: 'none', background: saving ? 'var(--border)' : 'var(--accent)', color: saving ? 'var(--muted)' : 'var(--bg)', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)', fontWeight: 700 }}>
+            style={{ flex: 2, padding: '14px 0', borderRadius: 12, border: 'none', background: saving ? 'var(--border)' : 'var(--accent)', color: saving ? 'var(--muted)' : 'var(--bg)', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 14 }}>
             {saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Product'}
           </button>
         </div>
@@ -365,62 +366,187 @@ export default function SellerDashboard() {
         :root {
           --bg:#080b12;--card:#0e1119;--card-alt:#131720;--border:#1c2133;
           --text:#e8ecf5;--muted:#5a6380;--accent:#22d1b0;--accent2:#7b5ea7;--danger:#ef4444;
-          --sidebar-w:240px;--topbar-h:64px;--nav-h:62px;
+          --sidebar-w:240px;--topbar-h:60px;--nav-h:66px;
           --font-display:'Cabinet Grotesk',sans-serif;--font-body:'Satoshi',sans-serif;
         }
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-        html,body{height:100%;background:var(--bg);}
+        html,body,#root{height:100%;background:var(--bg);}
+        body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+        /* Prevent zoom on input focus on iOS */
+        input,select,textarea{font-size:16px;}
+
         .sd{display:flex;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+
+        /* ── Sidebar (desktop only) ── */
         .sd-sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:40;}
-        .sd-logo{padding:24px 20px;border-bottom:1px solid var(--border);}
-        .sd-sidebar nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px;}
+        .sd-logo{padding:22px 20px;border-bottom:1px solid var(--border);}
+        .sd-sidebar nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
         .nav-btn{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;width:100%;text-align:left;}
         .nav-btn:hover{background:var(--card-alt);color:var(--text);}
         .nav-btn.on{background:rgba(34,209,176,.1);color:var(--accent);}
         .nav-icon{font-size:17px;width:20px;text-align:center;flex-shrink:0;}
         .nav-badge{margin-left:auto;background:var(--accent);color:var(--bg);font-size:10px;font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
-        .sd-user{padding:16px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+        .sd-user{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+
+        /* ── Main area ── */
         .sd-main{flex:1;display:flex;flex-direction:column;margin-left:var(--sidebar-w);min-height:100vh;}
-        .topbar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
-        .content{flex:1;padding:32px;display:flex;flex-direction:column;gap:24px;max-width:1200px;width:100%;}
-        .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-        .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+
+        /* ── Topbar ── */
+        .topbar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
+
+        /* ── Content area ── */
+        .content{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:20px;max-width:1200px;width:100%;}
+
+        /* ── Grids ── */
+        .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+        .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
         .order-list{display:flex;flex-direction:column;gap:10px;}
-        .section{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;}
-        .section-title{font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-        .pill{padding:7px 16px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-body);transition:all .15s;white-space:nowrap;}
+
+        /* ── Sections ── */
+        .section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+        .section-title{font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+
+        /* ── Pills / Filters ── */
+        .pill{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-body);transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
         .pill:hover{border-color:var(--accent);color:var(--accent);}
         .pill.on{background:var(--accent);border-color:var(--accent);color:var(--bg);}
         .pill.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);}
         .pill.danger{border-color:var(--danger);color:var(--danger);}
         .pill.danger:hover{background:rgba(239,68,68,.08);}
-        .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:20px;}
+
+        /* ── Filter row ── */
+        .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
         .filter-row::-webkit-scrollbar{display:none;}
+
+        /* ── Avatar ── */
         .avatar{border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--bg);flex-shrink:0;font-family:var(--font-display);}
-        .toggle{position:relative;display:inline-block;width:40px;height:22px;}
+
+        /* ── Toggle switch ── */
+        .toggle{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
         .toggle input{opacity:0;width:0;height:0;}
         .toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:22px;cursor:pointer;transition:.2s;}
         .toggle-slider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.2s;}
         input:checked+.toggle-slider{background:var(--accent);}
-        input:checked+.toggle-slider:before{transform:translateX(18px);background:var(--bg);}
-        .settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);gap:12px;}
+        input:checked+.toggle-slider:before{transform:translateX(16px);background:var(--bg);}
+
+        /* ── Settings rows ── */
+        .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);gap:12px;}
         .settings-row:last-of-type{border-bottom:none;}
+
+        /* ── Mobile nav ── */
         .mob-nav{display:none;}
+
+        /* ── Animations ── */
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-        @media(max-width:900px){
+
+        /* ════════════════════════════════════
+           MOBILE BREAKPOINT — max-width 768px
+           ════════════════════════════════════ */
+        @media(max-width:768px){
+          /* Hide sidebar, shift main */
           .sd-sidebar{display:none;}
-          .sd-main{margin-left:0;padding-bottom:var(--nav-h);}
-          .topbar{padding:0 18px;}
-          .content{padding:14px;gap:14px;}
-          .stats-grid{grid-template-columns:1fr 1fr;gap:10px;}
+          .sd-main{margin-left:0;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));}
+
+          /* Topbar — slimmer, no email */
+          .topbar{height:54px;padding:0 14px;}
+          .topbar-email{display:none;}
+
+          /* Content padding */
+          .content{padding:12px 12px;gap:12px;}
+
+          /* Stats: 2 columns on phone */
+          .stats-grid{grid-template-columns:1fr 1fr;gap:8px;}
+
+          /* Products: 2 columns */
           .prod-grid{grid-template-columns:1fr 1fr;gap:10px;}
-          .section{padding:16px;border-radius:14px;}
-          .mob-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);z-index:40;overflow-x:auto;scrollbar-width:none;}
+
+          /* Section padding */
+          .section{padding:14px 12px;border-radius:14px;}
+          .section-title{font-size:14px;margin-bottom:14px;}
+
+          /* Bottom nav */
+          .mob-nav{
+            display:flex;
+            position:fixed;
+            bottom:0;left:0;right:0;
+            height:var(--nav-h);
+            padding-bottom:env(safe-area-inset-bottom, 0px);
+            background:var(--card);
+            border-top:1px solid var(--border);
+            z-index:40;
+            overflow-x:auto;
+            scrollbar-width:none;
+          }
           .mob-nav::-webkit-scrollbar{display:none;}
-          .mob-btn{flex:0 0 auto;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;cursor:pointer;color:var(--muted);font-family:var(--font-body);font-size:9px;font-weight:600;position:relative;transition:color .15s;padding:0 10px;}
+          .mob-btn{
+            flex:1 0 auto;
+            min-width:52px;
+            max-width:80px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:3px;
+            border:none;
+            background:transparent;
+            cursor:pointer;
+            color:var(--muted);
+            font-family:var(--font-body);
+            font-size:9px;
+            font-weight:600;
+            position:relative;
+            transition:color .15s;
+            padding:0 6px;
+            -webkit-tap-highlight-color:transparent;
+          }
           .mob-btn.on{color:var(--accent);}
-          .mob-btn .bi{font-size:20px;line-height:1;}
-          .mob-badge{position:absolute;top:4px;right:4px;background:var(--accent);color:var(--bg);font-size:8px;font-weight:800;border-radius:999px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+          .mob-btn .bi{font-size:19px;line-height:1;}
+          .mob-badge{
+            position:absolute;
+            top:6px;right:calc(50% - 16px);
+            background:var(--accent);
+            color:var(--bg);
+            font-size:8px;
+            font-weight:800;
+            border-radius:999px;
+            min-width:15px;
+            height:15px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:0 3px;
+          }
+
+          /* Order rows: stack action button */
+          .order-action-btn{width:100%;margin-top:8px;margin-left:0!important;}
+
+          /* Product card adjustments */
+          .prod-card-img{height:120px!important;}
+          .prod-card-info{padding:10px!important;}
+          .prod-card-name{font-size:12px!important;}
+          .prod-card-sub{font-size:10px!important;}
+          .prod-card-price{font-size:12px!important;}
+
+          /* Welcome heading */
+          .welcome-heading{font-size:18px!important;}
+
+          /* Hide non-critical topbar items */
+          .topbar-store-name{font-size:12px!important;}
+        }
+
+        /* ── Very small screens ── */
+        @media(max-width:360px){
+          .stats-grid{grid-template-columns:1fr 1fr;gap:6px;}
+          .content{padding:10px;gap:10px;}
+          .mob-btn{min-width:44px;font-size:8px;}
+        }
+
+        /* ── Tablet breakpoint ── */
+        @media(min-width:769px) and (max-width:1024px){
+          :root{--sidebar-w:200px;}
+          .content{padding:20px 22px;gap:18px;}
+          .stats-grid{grid-template-columns:repeat(3,1fr);}
         }
       `}</style>
 
@@ -433,11 +559,11 @@ export default function SellerDashboard() {
       )}
 
       <div className="sd">
-        {/* Sidebar */}
+        {/* Sidebar (desktop) */}
         <aside className="sd-sidebar">
           <div className="sd-logo">
             <div style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 20 }}>Swift<span style={{ color: 'var(--accent)' }}>Mall</span></div>
-            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>Seller Portal</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 3 }}>Seller Portal</div>
           </div>
           <nav>
             {navItems.map(n => (
@@ -449,10 +575,10 @@ export default function SellerDashboard() {
             ))}
           </nav>
           <div className="sd-user">
-            <div className="avatar" style={{ width: 36, height: 36, fontSize: 13 }}>{user?.initials ?? '?'}</div>
+            <div className="avatar" style={{ width: 34, height: 34, fontSize: 12 }}>{user?.initials ?? '?'}</div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.storeName ?? '—'}</div>
-              <div style={{ fontSize: 11, color: 'var(--accent)' }}>Seller</div>
+              <div style={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.storeName ?? '—'}</div>
+              <div style={{ fontSize: 10, color: 'var(--accent)' }}>Seller</div>
             </div>
           </div>
         </aside>
@@ -461,57 +587,62 @@ export default function SellerDashboard() {
         <div className="sd-main">
           <header className="topbar">
             <div>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800 }}>{navItems.find(n => n.id === tab)?.label}</h1>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{today}</div>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800, lineHeight: 1.2 }}>{navItems.find(n => n.id === tab)?.label}</h1>
+              <div style={{ fontSize: 11, color: 'var(--muted)' }}>{today}</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>{user?.storeName ?? '—'}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ textAlign: 'right' }} className="topbar-email">
+                <div className="topbar-store-name" style={{ fontSize: 13, fontWeight: 600 }}>{user?.storeName ?? '—'}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)' }}>{user?.email ?? ''}</div>
               </div>
-              <div className="avatar" style={{ width: 40, height: 40, fontSize: 14 }}>{user?.initials ?? '?'}</div>
+              <div className="avatar" style={{ width: 36, height: 36, fontSize: 13 }}>{user?.initials ?? '?'}</div>
             </div>
           </header>
 
           <main className="content">
 
-            {/* Overview */}
+            {/* ── Overview ── */}
             {tab === 'overview' && (
               <>
                 <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 900 }}>{user ? `Welcome back, ${user.storeName.split(' ')[0]} 👋` : 'Your Store Dashboard'}</div>
-                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>Here's your store performance at a glance.</div>
+                  <div className="welcome-heading" style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 900, lineHeight: 1.2 }}>
+                    {user ? `Welcome, ${user.storeName.split(' ')[0]} 👋` : 'Your Store Dashboard'}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 5 }}>Here's your store at a glance.</div>
                 </div>
                 <div className="stats-grid">
                   <StatCard icon="📦" label="Total Orders"   value={stats ? String(stats.totalOrders)   : undefined} loading={statsLoading} accent="var(--accent)" />
-                  <StatCard icon="💰" label="Total Revenue"  value={stats ? fmt(stats.totalRevenue)     : undefined} loading={statsLoading} accent="#22c55e" />
-                  <StatCard icon="⏳" label="Pending Orders" value={stats ? String(stats.pendingOrders) : undefined} loading={statsLoading} accent="#f59e0b" />
-                </div>
-                <div className="stats-grid">
-                  <StatCard icon="🏷"  label="Active Products" value={stats ? String(stats.totalProducts) : undefined} loading={statsLoading} accent="var(--accent2)" />
-                  <StatCard icon="⭐" label="Avg Rating"       value={stats ? `${stats.avgRating}/5` : undefined}      sub={stats ? `${stats.totalReviews} reviews` : undefined} loading={statsLoading} accent="#f59e0b" />
-                  <StatCard icon="💳" label="Next Payout"      value="—" loading={false} />
+                  <StatCard icon="💰" label="Revenue"        value={stats ? fmt(stats.totalRevenue)     : undefined} loading={statsLoading} accent="#22c55e" />
+                  <StatCard icon="⏳" label="Pending"        value={stats ? String(stats.pendingOrders) : undefined} loading={statsLoading} accent="#f59e0b" />
+                  <StatCard icon="🏷" label="Products"       value={stats ? String(stats.totalProducts) : undefined} loading={statsLoading} accent="var(--accent2)" />
+                  <StatCard icon="⭐" label="Avg Rating"     value={stats ? `${stats.avgRating}/5` : undefined} sub={stats ? `${stats.totalReviews} reviews` : undefined} loading={statsLoading} accent="#f59e0b" />
+                  <StatCard icon="💳" label="Next Payout"    value="—" loading={false} />
                 </div>
                 <div className="section">
                   <div className="section-title">Revenue Trend <button className="pill" onClick={() => setTab('analytics')}>Full Analytics</button></div>
-                  {analyticsLoading ? <Skeleton height={80} /> : analytics ? <MiniChart data={analytics.revenue} color="var(--accent)" /> : <EmptyState icon="📈" message="No data yet" />}
+                  {analyticsLoading ? <Skeleton height={70} /> : analytics ? <MiniChart data={analytics.revenue} color="var(--accent)" /> : <EmptyState icon="📈" message="No data yet" />}
                 </div>
                 <div className="section">
                   <div className="section-title">Recent Orders <button className="pill" onClick={() => setTab('orders')}>See All</button></div>
-                  {ordersLoading ? [1,2,3].map(i => <Skeleton key={i} height={72} />) : orders.length === 0 ? <EmptyState icon="📦" message="No orders yet." /> : <div className="order-list">{orders.slice(0, 4).map(o => <OrderRow key={o.id} order={o} onStatusChange={updateStatus} />)}</div>}
+                  {ordersLoading
+                    ? [1,2,3].map(i => <Skeleton key={i} height={72} />)
+                    : orders.length === 0
+                      ? <EmptyState icon="📦" message="No orders yet." />
+                      : <div className="order-list">{orders.slice(0, 4).map(o => <OrderRow key={o.id} order={o} onStatusChange={updateStatus} />)}</div>
+                  }
                 </div>
               </>
             )}
 
-            {/* Products */}
+            {/* ── Products ── */}
             {tab === 'products' && (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--muted)' }}>{products.length} product{products.length !== 1 ? 's' : ''}</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--muted)' }}>{products.length} product{products.length !== 1 ? 's' : ''}</div>
                   <button className="pill primary" onClick={() => { setEditingProduct(null); setShowModal(true); }}>+ Add Product</button>
                 </div>
                 {prodLoading
-                  ? <div className="prod-grid">{[1,2,3,4].map(i => <Skeleton key={i} height={300} radius={14} />)}</div>
+                  ? <div className="prod-grid">{[1,2,3,4].map(i => <Skeleton key={i} height={280} radius={14} />)}</div>
                   : products.length === 0
                     ? <EmptyState icon="🏷" message="No products yet. Add your first product!" />
                     : <div className="prod-grid">{products.map(p => (
@@ -521,7 +652,7 @@ export default function SellerDashboard() {
               </>
             )}
 
-            {/* Orders */}
+            {/* ── Orders ── */}
             {tab === 'orders' && (
               <div className="section">
                 <div className="section-title">Orders</div>
@@ -530,25 +661,30 @@ export default function SellerDashboard() {
                     <button key={f} className={`pill${orderFilter === f.toLowerCase() ? ' on' : ''}`} onClick={() => { setOrderFilter(f.toLowerCase()); fetchOrders(f.toLowerCase()); }}>{f}</button>
                   ))}
                 </div>
-                {ordersLoading ? [1,2,3].map(i => <Skeleton key={i} height={80} />) : orders.length === 0 ? <EmptyState icon="📦" message="No orders found." /> : <div className="order-list">{orders.map(o => <OrderRow key={o.id} order={o} onStatusChange={updateStatus} showActions />)}</div>}
+                {ordersLoading
+                  ? [1,2,3].map(i => <Skeleton key={i} height={80} />)
+                  : orders.length === 0
+                    ? <EmptyState icon="📦" message="No orders found." />
+                    : <div className="order-list">{orders.map(o => <OrderRow key={o.id} order={o} onStatusChange={updateStatus} showActions />)}</div>
+                }
               </div>
             )}
 
-            {/* Analytics */}
+            {/* ── Analytics ── */}
             {tab === 'analytics' && (
               <>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div className="filter-row">
                   {[['7d','7 Days'],['30d','30 Days'],['90d','3 Months'],['365d','1 Year']].map(([v, l]) => (
                     <button key={v} className={`pill${period === v ? ' on' : ''}`} onClick={() => setPeriod(v)}>{l}</button>
                   ))}
                 </div>
                 <div className="section">
                   <div className="section-title">Revenue</div>
-                  {analyticsLoading ? <Skeleton height={100} /> : analytics ? <>
+                  {analyticsLoading ? <Skeleton height={90} /> : analytics ? <>
                     <MiniChart data={analytics.revenue} color="var(--accent)" />
-                    <div style={{ display: 'flex', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 12, flexWrap: 'wrap' }}>
                       {analytics.labels.slice(-5).map((l, i) => (
-                        <div key={i} style={{ fontSize: 12, color: 'var(--muted)' }}>
+                        <div key={i} style={{ fontSize: 11, color: 'var(--muted)' }}>
                           <span style={{ color: 'var(--text)', fontWeight: 600 }}>{fmt(analytics.revenue[i])}</span><br />{l}
                         </div>
                       ))}
@@ -557,26 +693,26 @@ export default function SellerDashboard() {
                 </div>
                 <div className="section">
                   <div className="section-title">Order Volume</div>
-                  {analyticsLoading ? <Skeleton height={100} /> : analytics ? <MiniChart data={analytics.orders} color="var(--accent2)" /> : <EmptyState icon="📦" message="No data." />}
+                  {analyticsLoading ? <Skeleton height={90} /> : analytics ? <MiniChart data={analytics.orders} color="var(--accent2)" /> : <EmptyState icon="📦" message="No data." />}
                 </div>
               </>
             )}
 
-            {/* Reviews */}
+            {/* ── Reviews ── */}
             {tab === 'reviews' && (
               <div className="section">
                 <div className="section-title">
-                  Customer Reviews
-                  {stats && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>Customer Reviews</span>
+                  {stats && <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     <Stars rating={stats.avgRating} />
-                    <span style={{ fontSize: 13, color: 'var(--muted)' }}>{stats.avgRating}/5 · {stats.totalReviews} reviews</span>
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{stats.avgRating}/5 · {stats.totalReviews}</span>
                   </div>}
                 </div>
                 {reviewsLoading ? [1,2,3].map(i => <Skeleton key={i} height={80} />) : reviews.length === 0 ? <EmptyState icon="⭐" message="No reviews yet." /> : reviews.map(r => <ReviewRow key={r.id} review={r} />)}
               </div>
             )}
 
-            {/* Payouts */}
+            {/* ── Payouts ── */}
             {tab === 'payouts' && (
               <>
                 <div className="stats-grid">
@@ -591,44 +727,53 @@ export default function SellerDashboard() {
               </>
             )}
 
-            {/* Settings */}
+            {/* ── Settings ── */}
             {tab === 'settings' && (
               <>
-                <div className="section" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                  <div className="avatar" style={{ width: 64, height: 64, fontSize: 22 }}>{user?.initials ?? '?'}</div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20 }}>{user?.storeName ?? '—'}</div>
-                    <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>{user?.email ?? '—'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--accent)', marginTop: 4 }}>Verified Seller</div>
+                <div className="section" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div className="avatar" style={{ width: 56, height: 56, fontSize: 20, flexShrink: 0 }}>{user?.initials ?? '?'}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.storeName ?? '—'}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email ?? '—'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--accent)', marginTop: 3 }}>Verified Seller</div>
                   </div>
                 </div>
                 <div className="section">
                   <div className="section-title">Store Info</div>
                   {[{ label: 'Store Name', sub: user?.storeName ?? '—' }, { label: 'Email', sub: user?.email ?? '—' }, { label: 'Phone', sub: user?.phone || 'Not set' }].map(row => (
                     <div key={row.label} className="settings-row">
-                      <div><div style={{ fontSize: 14, fontWeight: 500 }}>{row.label}</div><div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{row.sub}</div></div>
-                      <button className="pill">Edit</button>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 500 }}>{row.label}</div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.sub}</div>
+                      </div>
+                      <button className="pill" style={{ flexShrink: 0 }}>Edit</button>
                     </div>
                   ))}
                 </div>
                 <div className="section">
                   <div className="section-title">Preferences</div>
-                  {[{ label: 'Payout Method', sub: 'M-Pesa / Bank account' }, { label: 'Notification Prefs', sub: 'Order alerts & promotions' }, { label: 'Change Password', sub: 'Update your password' }].map(row => (
+                  {[{ label: 'Payout Method', sub: 'M-Pesa / Bank account' }, { label: 'Notifications', sub: 'Order alerts & promotions' }, { label: 'Change Password', sub: 'Update your password' }].map(row => (
                     <div key={row.label} className="settings-row">
-                      <div><div style={{ fontSize: 14, fontWeight: 500 }}>{row.label}</div><div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{row.sub}</div></div>
-                      <button className="pill">›</button>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 500 }}>{row.label}</div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{row.sub}</div>
+                      </div>
+                      <button className="pill" style={{ flexShrink: 0 }}>›</button>
                     </div>
                   ))}
                 </div>
                 <div className="section">
-                  <button className="pill danger" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }} style={{ width: '100%', padding: 14, borderRadius: 12, fontSize: 14 }}>Sign Out</button>
+                  <button className="pill danger" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }}
+                    style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 14 }}>
+                    Sign Out
+                  </button>
                 </div>
               </>
             )}
           </main>
         </div>
 
-        {/* Mobile nav */}
+        {/* ── Mobile bottom nav ── */}
         <nav className="mob-nav">
           {navItems.map(n => (
             <button key={n.id} className={`mob-btn${tab === n.id ? ' on' : ''}`} onClick={() => setTab(n.id)}>
@@ -648,16 +793,22 @@ function OrderRow({ order, onStatusChange, showActions }: { order: Order; onStat
   const s    = STATUS_CFG[order.status] ?? STATUS_CFG.processing;
   const next = ({ processing: 'shipped', shipped: 'delivered', delivered: null, cancelled: null } as Record<string, Order['status'] | null>)[order.status];
   return (
-    <div style={{ background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 12, padding: '14px 16px', display: 'flex', gap: 14 }}>
-      <span style={{ fontSize: 26, flexShrink: 0 }}>{order.emoji}</span>
+    <div style={{ background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 12 }}>
+      <span style={{ fontSize: 24, flexShrink: 0, lineHeight: 1.4 }}>{order.emoji}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.product}</div>
-        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{order.id.slice(-8)} · {order.buyer} · {order.date} · Qty: {order.qty}</div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 }}>
+          {order.id.slice(-6)} · {order.buyer} · Qty: {order.qty}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--muted)' }}>{order.date}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 999, color: s.color, background: s.bg }}>{s.label.toUpperCase()}</span>
+          <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 999, color: s.color, background: s.bg, whiteSpace: 'nowrap' }}>{s.label.toUpperCase()}</span>
           <span style={{ fontWeight: 800, fontSize: 13 }}>{fmt(order.amount)}</span>
           {showActions && next && (
-            <button onClick={() => onStatusChange(order.id, next)} style={{ marginLeft: 'auto', padding: '4px 12px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)' }}>
+            <button
+              onClick={() => onStatusChange(order.id, next)}
+              className="order-action-btn"
+              style={{ marginLeft: 'auto', padding: '5px 12px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>
               Mark {next.charAt(0).toUpperCase() + next.slice(1)} →
             </button>
           )}
@@ -670,36 +821,36 @@ function OrderRow({ order, onStatusChange, showActions }: { order: Order; onStat
 function ProductCard({ product: p, onToggle, onEdit, onDelete }: { product: Product; onToggle: (id: string, v: boolean) => void; onEdit: () => void; onDelete: (id: string) => void }) {
   const disc = p.originalPrice > p.price ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
   return (
-    <div style={{ background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column', opacity: p.isActive ? 1 : 0.55, position: 'relative' }}>
-      {/* Product image area */}
-      <div style={{ height: 160, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column', opacity: p.isActive ? 1 : 0.55 }}>
+      {/* Image */}
+      <div className="prod-card-img" style={{ height: 140, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
         {p.image
           ? <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          : <span style={{ fontSize: 52 }}>{p.emoji}</span>
+          : <span style={{ fontSize: 44 }}>{p.emoji}</span>
         }
-        {disc > 0 && <span style={{ position: 'absolute', top: 8, right: 8, background: 'var(--accent2)', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 999 }}>{disc}% OFF</span>}
-        {!p.isActive && <div style={{ position: 'absolute', inset: 0, background: 'rgba(8,11,18,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#fff', fontSize: 11, fontWeight: 700, background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: 8 }}>HIDDEN</span></div>}
+        {disc > 0 && <span style={{ position: 'absolute', top: 6, right: 6, background: 'var(--accent2)', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 999 }}>{disc}% OFF</span>}
+        {!p.isActive && <div style={{ position: 'absolute', inset: 0, background: 'rgba(8,11,18,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#fff', fontSize: 10, fontWeight: 700, background: 'rgba(0,0,0,0.6)', padding: '3px 8px', borderRadius: 6 }}>HIDDEN</span></div>}
       </div>
 
       {/* Info */}
-      <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+      <div className="prod-card-info" style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{p.name}</div>
-          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{p.category} · Stock: {p.stock}</div>
+          <div className="prod-card-name" style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
+          <div className="prod-card-sub" style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>Stock: {p.stock}</div>
         </div>
-        {p.rating > 0 && <div style={{ fontSize: 11, color: 'var(--muted)' }}>★ {p.rating} ({p.soldCount} sold)</div>}
-        <div style={{ display: 'flex', gap: 6, alignItems: 'baseline' }}>
-          <span style={{ fontWeight: 800, fontSize: 14 }}>{fmt(p.price)}</span>
-          {disc > 0 && <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through' }}>{fmt(p.originalPrice)}</span>}
+        {p.rating > 0 && <div style={{ fontSize: 10, color: 'var(--muted)' }}>★ {p.rating} ({p.soldCount} sold)</div>}
+        <div style={{ display: 'flex', gap: 5, alignItems: 'baseline' }}>
+          <span className="prod-card-price" style={{ fontWeight: 800, fontSize: 13 }}>{fmt(p.price)}</span>
+          {disc > 0 && <span style={{ fontSize: 10, color: 'var(--muted)', textDecoration: 'line-through' }}>{fmt(p.originalPrice)}</span>}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
           <label className="toggle" title={p.isActive ? 'Active' : 'Inactive'}>
             <input type="checkbox" checked={p.isActive} onChange={e => onToggle(p.id, e.target.checked)} />
             <span className="toggle-slider" />
           </label>
-          <span style={{ fontSize: 11, color: 'var(--muted)', flex: 1 }}>{p.isActive ? 'Active' : 'Hidden'}</span>
-          <button onClick={onEdit} style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', color: 'var(--muted)', fontSize: 12, fontFamily: 'var(--font-body)' }}>Edit</button>
-          <button onClick={() => onDelete(p.id)} style={{ padding: '5px 8px', borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', color: 'var(--danger)', fontSize: 12 }}>🗑</button>
+          <span style={{ fontSize: 10, color: 'var(--muted)', flex: 1 }}>{p.isActive ? 'Active' : 'Hidden'}</span>
+          <button onClick={onEdit} style={{ padding: '4px 8px', borderRadius: 7, border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', color: 'var(--muted)', fontSize: 11, fontFamily: 'var(--font-body)' }}>Edit</button>
+          <button onClick={() => onDelete(p.id)} style={{ padding: '4px 7px', borderRadius: 7, border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer', color: 'var(--danger)', fontSize: 11 }}>🗑</button>
         </div>
       </div>
     </div>
@@ -708,15 +859,15 @@ function ProductCard({ product: p, onToggle, onEdit, onDelete }: { product: Prod
 
 function ReviewRow({ review: r }: { review: Review }) {
   return (
-    <div style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 5, gap: 8 }}>
+        <div>
           <span style={{ fontSize: 13, fontWeight: 600 }}>{r.buyer}</span>
-          <span style={{ fontSize: 11, color: 'var(--muted)' }}>on {r.product}</span>
+          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>on {r.product}</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <Stars rating={r.rating} />
-          <span style={{ fontSize: 11, color: 'var(--muted)' }}>{r.date}</span>
+          <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{r.date}</div>
         </div>
       </div>
       {r.comment && <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{r.comment}</div>}
@@ -727,13 +878,13 @@ function ReviewRow({ review: r }: { review: Review }) {
 function PayoutRow({ payout: p }: { payout: Payout }) {
   const s = PAYOUT_CFG[p.status];
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
-      <span style={{ fontSize: 24 }}>💳</span>
-      <div style={{ flex: 1 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', borderBottom: '1px solid var(--border)' }}>
+      <span style={{ fontSize: 22, flexShrink: 0 }}>💳</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 600 }}>{fmt(p.amount)}</div>
-        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{p.method} · {p.date}</div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.method} · {p.date}</div>
       </div>
-      <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 999, color: s.color, background: s.bg }}>{p.status.toUpperCase()}</span>
+      <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 999, color: s.color, background: s.bg, flexShrink: 0 }}>{p.status.toUpperCase()}</span>
     </div>
   );
 }
