@@ -171,6 +171,8 @@ def mpesa_callback():
                 'updated_at':  now,
             }}
         )
+
+        # ── Update orders to paid ─────────────────────────────────────────────
         db.orders.update_many(
             {'_id': {'$in': payment['order_ids']}},
             {'$set': {
@@ -180,6 +182,20 @@ def mpesa_callback():
                 'updated_at':     now,
             }}
         )
+
+        # ── FIX 1: Decrement stock for each paid order ────────────────────────
+        paid_orders = list(db.orders.find({'_id': {'$in': payment['order_ids']}}))
+        for order in paid_orders:
+            product_id = order.get('product_id')
+            quantity   = order.get('quantity', 1)
+            if product_id:
+                db.products.update_one(
+                    {'_id': product_id},
+                    {
+                        '$inc': {'stock': -quantity, 'sold_count': quantity},
+                    }
+                )
+
         db.notifications.insert_one({
             'user_id':    payment['buyer_id'],
             'message':    f'Payment of KES {paid_amount:,} confirmed! M-Pesa code: {mpesa_code}.',

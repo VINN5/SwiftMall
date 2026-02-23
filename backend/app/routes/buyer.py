@@ -23,7 +23,6 @@ def require_buyer(fn):
 
 
 def check_password(plain: str, stored) -> bool:
-    """Safely compare password regardless of whether stored hash is str or bytes."""
     if isinstance(stored, str):
         stored = stored.encode('utf-8')
     return bcrypt.checkpw(plain.encode('utf-8'), stored)
@@ -90,12 +89,19 @@ def change_password(current_user):
 def get_stats(current_user):
     uid          = current_user['_id']
     total_orders = db.orders.count_documents({'buyer_id': uid})
-    pipeline     = [
-        {'$match': {'buyer_id': uid, 'status': {'$ne': 'cancelled'}}},
+
+    # FIX 3: Only sum orders where payment has been confirmed (payment_status = 'paid')
+    pipeline = [
+        {'$match': {
+            'buyer_id':       uid,
+            'payment_status': 'paid',
+            'status':         {'$ne': 'cancelled'},
+        }},
         {'$group': {'_id': None, 'total': {'$sum': '$amount'}}},
     ]
     result      = list(db.orders.aggregate(pipeline))
     total_spent = result[0]['total'] if result else 0
+
     return jsonify({
         'totalOrders':   total_orders,
         'totalSpent':    total_spent,
