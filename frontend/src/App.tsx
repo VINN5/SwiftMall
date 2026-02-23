@@ -1,4 +1,5 @@
 // src/App.tsx
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -11,7 +12,7 @@ function ProtectedRoute({
   children,
   allowedRole,
 }: {
-  children: JSX.Element;
+  children: React.ReactElement;
   allowedRole?: 'buyer' | 'seller' | 'admin';
 }) {
   const token   = localStorage.getItem('token');
@@ -23,7 +24,6 @@ function ProtectedRoute({
 
   if (allowedRole) {
     const stored = JSON.parse(userRaw);
-    // Treat legacy role 'user' as 'buyer'
     const role: string = stored.role === 'user' ? 'buyer' : (stored.role ?? 'buyer');
 
     if (role !== allowedRole) {

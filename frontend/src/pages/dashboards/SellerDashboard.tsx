@@ -167,20 +167,7 @@ function Stars({ rating }: { rating: number }) {
   return <span style={{ color: '#f59e0b', fontSize: 13, letterSpacing: 1 }}>{Array.from({ length: 5 }, (_, i) => i < Math.round(rating) ? '★' : '☆').join('')}</span>;
 }
 
-// ── Product Image component ───────────────────────────────────────────────────
-function ProductThumb({ image, emoji, size = 56 }: { image?: string | null; emoji: string; size?: number }) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt=""
-        style={{ width: size, height: size, objectFit: 'cover', borderRadius: size * 0.2, flexShrink: 0, border: '1px solid var(--border)' }}
-        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-      />
-    );
-  }
-  return <span style={{ fontSize: size * 0.6, flexShrink: 0, lineHeight: 1 }}>{emoji}</span>;
-}
+
 
 // ── Image Upload component ────────────────────────────────────────────────────
 function ImageUpload({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
