@@ -390,7 +390,7 @@ const Home: React.FC = () => {
             { icon: '🏪', title: 'Sell with Ease', desc: 'Open your store in minutes. Manage products, track orders, and receive payouts directly to your M-Pesa.' },
             { icon: '📦', title: 'Real-Time Tracking', desc: 'Follow your order every step of the way, from processing to delivery, right from your dashboard.' },
             { icon: '🔒', title: 'Trusted & Secure', desc: 'Every transaction is protected. Buyer and seller accounts are verified for a safe marketplace experience.' },
-            { icon: '⚡', title: 'Built for Speed', desc: 'Snappy performance on any device. SwiftMall is optimized for Kenya\'s mobile-first users.' },
+            { icon: '⚡', title: 'Built for Speed', desc: "Snappy performance on any device. SwiftMall is optimized for Kenya's mobile-first users." },
           ].map(f => (
             <div className="feature" key={f.title}>
               <span className="feature-icon">{f.icon}</span>
