@@ -6,3 +6,4 @@ bcrypt==4.2.0
 pyjwt==2.9.0
 gunicorn
 certifi
+requests
