@@ -73,7 +73,7 @@ const Home: React.FC = () => {
           color: #e8f0ff;
           font-family: 'Outfit', sans-serif;
           position: relative;
-          overflow: hidden;
+          overflow-x: hidden;
           display: flex;
           flex-direction: column;
         }
@@ -88,24 +88,24 @@ const Home: React.FC = () => {
         .orb {
           position: fixed;
           border-radius: 50%;
-          filter: blur(120px);
+          filter: blur(100px);
           pointer-events: none;
           z-index: 0;
         }
         .orb-1 {
-          width: 600px; height: 600px;
+          width: 500px; height: 500px;
           background: radial-gradient(circle, rgba(56,114,255,0.18) 0%, transparent 70%);
-          top: -200px; left: -150px;
+          top: -150px; left: -100px;
           animation: drift1 18s ease-in-out infinite alternate;
         }
         .orb-2 {
-          width: 500px; height: 500px;
+          width: 400px; height: 400px;
           background: radial-gradient(circle, rgba(120,60,220,0.14) 0%, transparent 70%);
-          bottom: -100px; right: -100px;
+          bottom: -80px; right: -80px;
           animation: drift2 22s ease-in-out infinite alternate;
         }
         .orb-3 {
-          width: 350px; height: 350px;
+          width: 300px; height: 300px;
           background: radial-gradient(circle, rgba(0,210,160,0.1) 0%, transparent 70%);
           top: 40%; left: 50%;
           transform: translate(-50%, -50%);
@@ -116,59 +116,62 @@ const Home: React.FC = () => {
         @keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-50px, -60px); } }
         @keyframes drift3 { from { transform: translate(-50%,-50%); } to { transform: translate(-45%,-55%); } }
 
+        /* ── Nav ── */
         .nav {
           position: relative; z-index: 10;
           display: flex; align-items: center; justify-content: space-between;
-          padding: 28px 48px;
+          padding: 20px 48px;
         }
         .nav-logo {
           font-family: 'Instrument Serif', serif;
-          font-size: 26px; color: #fff; letter-spacing: -0.5px;
+          font-size: 24px; color: #fff; letter-spacing: -0.5px;
         }
         .nav-logo span { color: #4d8dff; font-style: italic; }
         .nav-links { display: flex; gap: 32px; }
         .nav-link {
-          font-size: 13px; font-weight: 500; color: rgba(232,240,255,0.5);
+          font-size: 12px; font-weight: 500; color: rgba(232,240,255,0.5);
           text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase;
           transition: color 0.2s;
         }
         .nav-link:hover { color: #e8f0ff; }
         .nav-cta {
-          padding: 10px 24px; border-radius: 999px;
+          padding: 9px 20px; border-radius: 999px;
           background: rgba(77,141,255,0.15); border: 1px solid rgba(77,141,255,0.4);
           color: #7ab0ff; font-size: 13px; font-weight: 600;
           text-decoration: none; transition: all 0.2s;
         }
         .nav-cta:hover { background: rgba(77,141,255,0.25); color: #fff; }
 
+        /* ── Hero ── */
         .hero {
           position: relative; z-index: 10;
           flex: 1; display: flex; flex-direction: column;
           align-items: center; justify-content: center;
-          text-align: center; padding: 60px 24px 80px;
+          text-align: center; padding: 48px 20px 60px;
         }
 
         .hero-badge {
           display: inline-flex; align-items: center; gap: 8px;
-          padding: 6px 16px; border-radius: 999px;
+          padding: 6px 14px; border-radius: 999px;
           background: rgba(77,141,255,0.08); border: 1px solid rgba(77,141,255,0.2);
-          font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-          color: #7ab0ff; margin-bottom: 40px;
+          font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+          color: #7ab0ff; margin-bottom: 32px;
           animation: fadeUp 0.8s ease both;
         }
         .hero-badge-dot {
           width: 6px; height: 6px; border-radius: 50%;
           background: #4d8dff; box-shadow: 0 0 8px #4d8dff;
-          animation: pulse 2s infinite;
+          animation: pulse 2s infinite; flex-shrink: 0;
         }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
 
         .hero-title {
           font-family: 'Instrument Serif', serif;
-          font-size: clamp(52px, 9vw, 110px);
-          line-height: 0.95; letter-spacing: -2px; color: #fff;
+          font-size: clamp(44px, 11vw, 110px);
+          line-height: 0.95; letter-spacing: -1px; color: #fff;
           margin-bottom: 12px;
           animation: fadeUp 0.8s 0.1s ease both;
+          word-break: break-word;
         }
         .hero-title-accent {
           font-style: italic;
@@ -179,60 +182,68 @@ const Home: React.FC = () => {
         }
 
         .hero-sub {
-          font-size: clamp(15px, 2vw, 19px); font-weight: 300;
-          color: rgba(232,240,255,0.5); max-width: 520px;
-          line-height: 1.7; margin: 28px auto 52px;
+          font-size: clamp(14px, 3.5vw, 18px); font-weight: 300;
+          color: rgba(232,240,255,0.5); max-width: 500px;
+          line-height: 1.7; margin: 24px auto 44px;
           animation: fadeUp 0.8s 0.2s ease both;
+          padding: 0 8px;
         }
         .hero-sub strong { color: rgba(232,240,255,0.8); font-weight: 500; }
 
         .hero-actions {
-          display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+          display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
           animation: fadeUp 0.8s 0.3s ease both;
+          padding: 0 16px;
         }
 
         .btn-primary {
-          display: inline-flex; align-items: center; gap: 10px;
-          padding: 16px 36px; border-radius: 999px;
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 14px 28px; border-radius: 999px;
           background: linear-gradient(135deg, #3b7bff, #6c40f0);
           color: #fff; font-family: 'Outfit', sans-serif;
-          font-size: 15px; font-weight: 600; text-decoration: none;
+          font-size: 14px; font-weight: 600; text-decoration: none;
           box-shadow: 0 0 40px rgba(59,123,255,0.35), 0 2px 8px rgba(0,0,0,0.3);
-          transition: all 0.25s;
+          transition: all 0.25s; white-space: nowrap;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(59,123,255,0.5), 0 4px 16px rgba(0,0,0,0.3); }
 
         .btn-secondary {
-          display: inline-flex; align-items: center; gap: 10px;
-          padding: 16px 36px; border-radius: 999px;
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 14px 28px; border-radius: 999px;
           background: transparent; border: 1px solid rgba(232,240,255,0.15);
           color: rgba(232,240,255,0.7); font-family: 'Outfit', sans-serif;
-          font-size: 15px; font-weight: 500; text-decoration: none;
-          transition: all 0.25s; backdrop-filter: blur(10px);
+          font-size: 14px; font-weight: 500; text-decoration: none;
+          transition: all 0.25s; backdrop-filter: blur(10px); white-space: nowrap;
         }
         .btn-secondary:hover { border-color: rgba(232,240,255,0.35); color: #fff; transform: translateY(-2px); }
 
+        /* ── Stats ── */
         .stats-bar {
           position: relative; z-index: 10;
-          display: flex; justify-content: center;
-          padding: 0 24px 80px;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          padding: 0 24px 60px;
           animation: fadeUp 0.8s 0.5s ease both;
+          max-width: 700px;
+          margin: 0 auto;
+          width: 100%;
         }
         .stat-item {
-          padding: 20px 40px;
+          padding: 16px 12px;
           border-left: 1px solid rgba(232,240,255,0.07);
           text-align: center;
         }
         .stat-item:first-child { border-left: none; }
         .stat-num {
           font-family: 'Instrument Serif', serif;
-          font-size: 32px; color: #fff; line-height: 1;
+          font-size: clamp(18px, 4vw, 28px); color: #fff; line-height: 1;
         }
         .stat-label {
-          font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+          font-size: 9px; font-weight: 500; letter-spacing: 0.06em;
           text-transform: uppercase; color: rgba(232,240,255,0.35); margin-top: 6px;
         }
 
+        /* ── Features ── */
         .features {
           position: relative; z-index: 10;
           display: grid; grid-template-columns: repeat(3, 1fr);
@@ -240,33 +251,39 @@ const Home: React.FC = () => {
           background: rgba(232,240,255,0.06);
           border-top: 1px solid rgba(232,240,255,0.06);
           border-bottom: 1px solid rgba(232,240,255,0.06);
-          margin: 0 0 80px;
+          margin: 0 0 60px;
         }
         .feature {
-          background: #050a14; padding: 40px 36px; transition: background 0.2s;
+          background: #050a14; padding: 32px 24px; transition: background 0.2s;
         }
         .feature:hover { background: rgba(77,141,255,0.04); }
-        .feature-icon { font-size: 28px; margin-bottom: 18px; display: block; }
-        .feature-title { font-size: 16px; font-weight: 600; color: #e8f0ff; margin-bottom: 10px; }
-        .feature-desc { font-size: 13px; color: rgba(232,240,255,0.4); line-height: 1.7; }
+        .feature-icon { font-size: 26px; margin-bottom: 14px; display: block; }
+        .feature-title { font-size: 15px; font-weight: 600; color: #e8f0ff; margin-bottom: 8px; }
+        .feature-desc { font-size: 13px; color: rgba(232,240,255,0.4); line-height: 1.65; }
 
+        /* ── CTA ── */
         .cta-section {
           position: relative; z-index: 10;
-          text-align: center; padding: 0 24px 100px;
+          text-align: center; padding: 0 20px 80px;
           animation: fadeUp 0.8s 0.4s ease both;
         }
         .cta-title {
           font-family: 'Instrument Serif', serif;
-          font-size: clamp(30px, 5vw, 52px); color: #fff; margin-bottom: 16px;
+          font-size: clamp(26px, 6vw, 52px); color: #fff; margin-bottom: 12px;
         }
-        .cta-sub { font-size: 15px; color: rgba(232,240,255,0.4); margin-bottom: 36px; }
+        .cta-sub { font-size: 14px; color: rgba(232,240,255,0.4); margin-bottom: 32px; }
+        .cta-buttons {
+          display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+        }
 
+        /* ── Footer ── */
         .footer {
           position: relative; z-index: 10;
           border-top: 1px solid rgba(232,240,255,0.06);
-          padding: 28px 48px;
+          padding: 24px 32px;
           display: flex; align-items: center; justify-content: space-between;
           font-size: 12px; color: rgba(232,240,255,0.25);
+          flex-wrap: wrap; gap: 8px;
         }
 
         @keyframes fadeUp {
@@ -274,13 +291,38 @@ const Home: React.FC = () => {
           to   { opacity: 1; transform: translateY(0); }
         }
 
+        /* ── Tablet ── */
         @media (max-width: 768px) {
-          .nav { padding: 20px 24px; }
+          .nav { padding: 16px 20px; }
           .nav-links { display: none; }
+          .features { grid-template-columns: 1fr 1fr; }
+          .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 0 16px 48px; }
+          .stat-item { border-left: none; border-bottom: 1px solid rgba(232,240,255,0.07); }
+          .stat-item:nth-child(odd) { border-right: 1px solid rgba(232,240,255,0.07); }
+          .footer { justify-content: center; text-align: center; padding: 20px; }
+        }
+
+        /* ── Phone ── */
+        @media (max-width: 480px) {
+          .nav { padding: 14px 16px; }
+          .nav-logo { font-size: 20px; }
+          .nav-cta { padding: 8px 16px; font-size: 12px; }
+          .hero { padding: 36px 16px 48px; }
+          .hero-badge { font-size: 9px; padding: 5px 12px; margin-bottom: 24px; }
+          .hero-title { font-size: clamp(38px, 12vw, 58px); letter-spacing: -0.5px; }
+          .hero-sub { font-size: 14px; margin: 20px auto 36px; }
+          .hero-actions { gap: 10px; }
+          .btn-primary, .btn-secondary { padding: 13px 22px; font-size: 13px; width: 100%; justify-content: center; }
+          .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 0 12px 40px; gap: 0; }
+          .stat-num { font-size: 20px; }
+          .stat-label { font-size: 8px; }
           .features { grid-template-columns: 1fr; }
-          .stats-bar { flex-wrap: wrap; }
-          .stat-item { flex: 1 1 40%; border-left: none; border-top: 1px solid rgba(232,240,255,0.07); }
-          .footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px; }
+          .feature { padding: 24px 20px; }
+          .cta-section { padding: 0 16px 60px; }
+          .cta-buttons { flex-direction: column; align-items: center; }
+          .cta-buttons .btn-primary,
+          .cta-buttons .btn-secondary { width: 100%; max-width: 320px; justify-content: center; }
+          .footer { font-size: 11px; }
         }
       `}</style>
 
@@ -350,7 +392,7 @@ const Home: React.FC = () => {
         <section className="cta-section">
           <h2 className="cta-title">Ready to get started?</h2>
           <p className="cta-sub">Join SwiftMall today — it is free to sign up.</p>
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="cta-buttons">
             <a href="/register" className="btn-primary">Create Account →</a>
             <a href="/login" className="btn-secondary">Already have an account</a>
           </div>
