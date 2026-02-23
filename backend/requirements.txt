@@ -4,3 +4,4 @@ pymongo==4.8.0          # or latest
 python-dotenv==1.0.1
 bcrypt==4.2.0
 pyjwt==2.9.0
+gunicorn

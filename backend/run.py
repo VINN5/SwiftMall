@@ -27,4 +27,4 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 8000))
     print(f"\n SwiftMall API running at http://localhost:{port}/api")
     print(f" Health check:           http://localhost:{port}/health\n")
-    app.run(debug=True, host='0.0.0.0', port=port, use_reloader=True)
+    app.run(debug=False, host='0.0.0.0', port=port, use_reloader=False)
