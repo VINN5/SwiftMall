@@ -1,7 +1,7 @@
 // frontend/src/pages/dashboards/BuyerDashboard.tsx
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const API = 'http://localhost:8000/api';
+const API = 'https://swiftmall-backend.onrender.com/api';
 function authHeaders(): Record<string, string> {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` };
 }

@@ -1,7 +1,7 @@
 // frontend/src/pages/dashboards/AdminDashboard.tsx
 import { useState, useEffect, useCallback } from 'react';
 
-const API = 'http://localhost:8000/api';
+const API = 'https://swiftmall-backend.onrender.com/api';
 
 function authHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');
