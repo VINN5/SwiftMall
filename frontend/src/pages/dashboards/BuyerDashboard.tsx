@@ -162,7 +162,7 @@ function useSearch() {
 }
 
 // ── Edit Field Modal ──────────────────────────────────────────────────────────
-function EditModal({ label, currentValue, field, onClose, onSave }: { label: string; currentValue: string; field: string; onClose: () => void; onSave: (val: string) => Promise<void>; }) {
+function EditModal({ label, currentValue, onClose, onSave }: { label: string; currentValue: string; field: string; onClose: () => void; onSave: (val: string) => Promise<void>; }) {
   const [value, setValue]   = useState(currentValue);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
