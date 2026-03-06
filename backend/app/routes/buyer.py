@@ -90,7 +90,6 @@ def get_stats(current_user):
     uid          = current_user['_id']
     total_orders = db.orders.count_documents({'buyer_id': uid})
 
-    # FIX 3: Only sum orders where payment has been confirmed (payment_status = 'paid')
     pipeline = [
         {'$match': {
             'buyer_id':       uid,
@@ -128,6 +127,7 @@ def get_orders(current_user):
         'status':  o.get('status', 'processing'),
         'amount':  o.get('amount', 0),
         'emoji':   o.get('emoji', '📦'),
+        'image':   o.get('image'),          # return product image for display
     } for o in orders])
 
 
@@ -143,6 +143,7 @@ def get_wishlist(current_user):
         'price':         i.get('price', 0),
         'originalPrice': i.get('original_price', i.get('price', 0)),
         'emoji':         i.get('emoji', '🛍'),
+        'image':         i.get('image'),    # return image if stored on wishlist
         'inStock':       i.get('in_stock', True),
     } for i in items])
 
@@ -170,6 +171,7 @@ def add_to_wishlist(current_user):
         'price':          product.get('price', 0),
         'original_price': product.get('original_price', product.get('price', 0)),
         'emoji':          product.get('emoji', '🛍'),
+        'image':          product.get('image'),     # store image when adding to wishlist
         'in_stock':       product.get('stock', 0) > 0,
         'added_at':       datetime.now(timezone.utc),
     })
