@@ -6,7 +6,6 @@ function authHeaders(): Record<string, string> {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` };
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface User         { name: string; email: string; phone: string; initials: string; }
 interface Order        { id: string; product: string; seller: string; date: string; status: 'delivered'|'shipped'|'processing'|'cancelled'; amount: number; emoji: string; }
 interface WishlistItem { id: string; name: string; price: number; originalPrice: number; emoji: string; image?: string | null; inStock: boolean; }
@@ -26,7 +25,6 @@ const STATUS_CFG = {
 
 const fmt = (n: number) => `KES ${n.toLocaleString()}`;
 
-// ── Reusable product thumbnail ─────────────────────────────────────────────
 function ProductThumb({ image, emoji, size = 48 }: { image?: string | null; emoji: string; size?: number }) {
   if (image) {
     return (
@@ -37,9 +35,13 @@ function ProductThumb({ image, emoji, size = 48 }: { image?: string | null; emoj
   return <span style={{ fontSize: size * 0.6, flexShrink: 0, lineHeight: 1 }}>{emoji}</span>;
 }
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
 function useUser() {
   const [user, setUser] = useState<User | null>(null);
+  const refetch = useCallback(() => {
+    fetch(`${API}/buyer/me`, { headers: authHeaders() }).then(r => r.json()).then(d => {
+      if (d.username) setUser({ name: d.username, email: d.email, phone: d.phone || '', initials: d.username.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0,2) || '?' });
+    }).catch(() => {});
+  }, []);
   useEffect(() => {
     const raw = localStorage.getItem('user');
     if (raw) {
@@ -49,11 +51,9 @@ function useUser() {
         setUser({ name, email: s.email || '', phone: s.phone || '', initials: name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0,2) || '?' });
       } catch {}
     }
-    fetch(`${API}/buyer/me`, { headers: authHeaders() }).then(r => r.json()).then(d => {
-      if (d.username) setUser({ name: d.username, email: d.email, phone: d.phone || '', initials: d.username.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0,2) || '?' });
-    }).catch(() => {});
-  }, []);
-  return user;
+    refetch();
+  }, [refetch]);
+  return { user, refetch };
 }
 
 function useStats() {
@@ -161,7 +161,90 @@ function useSearch() {
   return { query, setQuery, results, suggestions, setSuggestions, categories, loading, category, setCategory, sort, setSort, page, search, changePage: (p: number) => search(query, category, sort, p) };
 }
 
-// ─── Small components ─────────────────────────────────────────────────────────
+// ── Edit Field Modal ──────────────────────────────────────────────────────────
+function EditModal({ label, currentValue, field, onClose, onSave }: { label: string; currentValue: string; field: string; onClose: () => void; onSave: (val: string) => Promise<void>; }) {
+  const [value, setValue]   = useState(currentValue);
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState('');
+
+  const handleSave = async () => {
+    if (!value.trim()) { setError(`${label} cannot be empty.`); return; }
+    setSaving(true); setError('');
+    try { await onSave(value.trim()); onClose(); }
+    catch (e: any) { setError(e.message || 'Failed to save.'); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, width: '100%', maxWidth: 400 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 800, marginBottom: 18 }}>Edit {label}</div>
+        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>{label}</label>
+        <input
+          autoFocus
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') onClose(); }}
+          style={{ width: '100%', padding: '12px 14px', background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: 15, outline: 'none', marginBottom: 14 }}
+        />
+        {error && <div style={{ color: '#ef4444', fontSize: 12, marginBottom: 12 }}>{error}</div>}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+          <button onClick={handleSave} disabled={saving} style={{ flex: 2, padding: '12px 0', borderRadius: 10, border: 'none', background: 'var(--accent)', color: '#fff', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 14, opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Change Password Modal ─────────────────────────────────────────────────────
+function ChangePasswordModal({ onClose }: { onClose: () => void }) {
+  const [form, setForm]   = useState({ current_password: '', new_password: '' });
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState('');
+  const [done, setDone]     = useState(false);
+
+  const handleSave = async () => {
+    if (!form.current_password || !form.new_password) { setError('Both fields are required.'); return; }
+    if (form.new_password.length < 8) { setError('New password must be at least 8 characters.'); return; }
+    setSaving(true); setError('');
+    const res = await fetch(`${API}/buyer/password`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify(form) });
+    const data = await res.json();
+    setSaving(false);
+    if (!res.ok) { setError(data.error || 'Failed to change password.'); return; }
+    setDone(true);
+    setTimeout(onClose, 1500);
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 18, padding: 24, width: '100%', maxWidth: 400 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 800, marginBottom: 18 }}>Change Password</div>
+        {done ? <div style={{ textAlign: 'center', padding: '16px 0', color: '#22c55e', fontWeight: 700 }}>Password changed!</div> : <>
+          {['current_password','new_password'].map(f => (
+            <div key={f} style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.05em' }}>
+                {f === 'current_password' ? 'Current Password' : 'New Password'}
+              </label>
+              <input type="password" value={(form as any)[f]} onChange={e => setForm(p => ({ ...p, [f]: e.target.value }))}
+                style={{ width: '100%', padding: '12px 14px', background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: 15, outline: 'none' }} />
+            </div>
+          ))}
+          {error && <div style={{ color: '#ef4444', fontSize: 12, marginBottom: 12 }}>{error}</div>}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13 }}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} style={{ flex: 2, padding: '12px 0', borderRadius: 10, border: 'none', background: 'var(--accent)', color: '#fff', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 14, opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Saving…' : 'Change Password'}
+            </button>
+          </div>
+        </>}
+      </div>
+    </div>
+  );
+}
+
 const Empty = ({ icon, msg }: { icon: string; msg: string }) => (
   <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--muted)' }}>
     <div style={{ fontSize: 40, marginBottom: 10 }}>{icon}</div>
@@ -193,7 +276,7 @@ function OrderCard({ o }: { o: Order }) {
         <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{o.seller}</div>
         <div style={{ fontSize: 11, color: 'var(--muted)' }}>{o.date}</div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', padding: '3px 8px', borderRadius: 999, color: s.color, background: s.bg, whiteSpace: 'nowrap' }}>{s.label.toUpperCase()}</span>
+          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.06em', padding: '3px 8px', borderRadius: 999, color: s.color, background: s.bg }}>{s.label.toUpperCase()}</span>
           <span style={{ fontWeight: 800, fontSize: 13 }}>{fmt(o.amount)}</span>
         </div>
       </div>
@@ -201,24 +284,18 @@ function OrderCard({ o }: { o: Order }) {
   );
 }
 
-// ── Product card ──────────────────────────────────────────────────────────────
 function ProductCard({ p, onAdd }: { p: Product; onAdd: (id: string) => Promise<boolean> }) {
   const disc = p.originalPrice > p.price ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
   const [adding, setAdding] = useState(false);
   return (
     <div style={{ background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 13, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <div style={{ height: 130, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-        {p.image
-          ? <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          : <span style={{ fontSize: 44 }}>{p.emoji}</span>
-        }
+        {p.image ? <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 44 }}>{p.emoji}</span>}
       </div>
       {disc > 0 && <span style={{ position: 'absolute', top: 6, right: 6, background: 'var(--accent2)', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 999 }}>{disc}% OFF</span>}
       <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
-          <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{p.seller}</div>
-        </div>
+        <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
+        <div style={{ fontSize: 10, color: 'var(--muted)' }}>{p.seller}</div>
         {p.rating > 0 && <div style={{ fontSize: 10, color: 'var(--muted)' }}>★ {p.rating} ({p.soldCount})</div>}
         <div style={{ display: 'flex', gap: 5, alignItems: 'baseline', flexWrap: 'wrap' }}>
           <span style={{ fontWeight: 800, fontSize: 13 }}>{fmt(p.price)}</span>
@@ -234,7 +311,6 @@ function ProductCard({ p, onAdd }: { p: Product; onAdd: (id: string) => Promise<
   );
 }
 
-// ── M-Pesa Checkout Modal ─────────────────────────────────────────────────────
 function CheckoutModal({ items, total, onClose, onSuccess }: { items: CartItem[]; total: number; onClose: () => void; onSuccess: () => void }) {
   const [form, setForm]           = useState({ delivery_address: '', phone: '' });
   const [step, setStep]           = useState<'details'|'waiting'|'done'>('details');
@@ -253,8 +329,8 @@ function CheckoutModal({ items, total, onClose, onSuccess }: { items: CartItem[]
         const res  = await fetch(`${API}/mpesa/status/${cid}`, { headers: authHeaders() });
         const data = await res.json();
         if (data.status === 'success') { stopPoll(); setMpesaCode(data.mpesa_code || ''); setStep('done'); setTimeout(onSuccess, 2500); }
-        else if (data.status === 'failed') { stopPoll(); setError(data.result_desc || 'Payment cancelled. Please try again.'); setStep('details'); }
-        else if (attempts >= 30) { stopPoll(); setError('Payment timed out. If you paid, check My Orders.'); setStep('details'); }
+        else if (data.status === 'failed') { stopPoll(); setError(data.result_desc || 'Payment cancelled.'); setStep('details'); }
+        else if (attempts >= 30) { stopPoll(); setError('Payment timed out. Check My Orders if you paid.'); setStep('details'); }
       } catch {}
     }, 3000);
   };
@@ -274,12 +350,9 @@ function CheckoutModal({ items, total, onClose, onSuccess }: { items: CartItem[]
   };
 
   return (
-    /* Bottom-sheet style on mobile */
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '20px 20px 0 0', padding: '20px 18px 32px', width: '100%', maxWidth: 580, maxHeight: '93vh', overflowY: 'auto' }}>
-        {/* Drag handle */}
         <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--border)', margin: '0 auto 16px' }} />
-
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 800 }}>
             {step === 'done' ? '✅ Payment Confirmed' : step === 'waiting' ? '⏳ Check Your Phone' : '💳 Checkout'}
@@ -308,7 +381,6 @@ function CheckoutModal({ items, total, onClose, onSuccess }: { items: CartItem[]
                 <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--accent)' }}>{fmt(total)}</span>
               </div>
             </div>
-
             {[['Delivery Address','delivery_address','text','e.g. 123 Moi Avenue, Nairobi'],['M-Pesa Phone','phone','tel','e.g. 0712 345 678']].map(([lbl,key,type,ph]) => (
               <div key={key} style={{ marginBottom: 14 }}>
                 <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'var(--muted)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '.05em' }}>{lbl}</label>
@@ -316,9 +388,7 @@ function CheckoutModal({ items, total, onClose, onSuccess }: { items: CartItem[]
                   style={{ width: '100%', padding: '12px 14px', background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 10, color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: 16, outline: 'none' }} />
               </div>
             ))}
-
             {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '10px 14px', color: '#ef4444', fontSize: 12, marginBottom: 12 }}>{error}</div>}
-
             <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
               <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>📱</span>
               <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>You'll receive an <strong style={{ color: 'var(--text)' }}>M-Pesa STK push</strong> on your phone. Enter your PIN to complete.</div>
@@ -368,20 +438,23 @@ function CheckoutModal({ items, total, onClose, onSuccess }: { items: CartItem[]
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 type Tab = 'overview'|'search'|'cart'|'orders'|'wishlist'|'notifications'|'settings';
 
 export default function BuyerDashboard() {
-  const [tab, setTab]             = useState<Tab>('overview');
+  const [tab, setTab]               = useState<Tab>('overview');
   const [orderFilter, setOrderFilter] = useState('all');
   const [showCheckout, setShowCheckout] = useState(false);
-  const user                      = useUser();
-  const { data: stats, loading: statsLoading }                      = useStats();
-  const { orders, loading: ordersLoading, refetch: refetchOrders }  = useOrders();
+  const [editModal, setEditModal]   = useState<{ label: string; value: string; field: string } | null>(null);
+  const [showPwModal, setShowPwModal] = useState(false);
+
+  const { user, refetch: refetchUser }                               = useUser();
+  const { data: stats, loading: statsLoading }                       = useStats();
+  const { orders, loading: ordersLoading, refetch: refetchOrders }   = useOrders();
   const { items: wishItems, loading: wishLoading, remove: removeWish } = useWishlist();
-  const { notifications, loading: notifsLoading, markAllRead }      = useNotifications();
+  const { notifications, loading: notifsLoading, markAllRead }       = useNotifications();
   const { items: cartItems, loading: cartLoading, refetch: refetchCart, addToCart, updateQty, remove: removeCartItem, clear: clearCart, total: cartTotal, itemCount } = useCart();
   const { query, setQuery, results, suggestions, setSuggestions, categories, loading: searchLoading, category, setCategory, sort, setSort, search, changePage, page } = useSearch();
+
   const unread    = notifications.filter(n => !n.read).length;
   const searchRef = useRef<HTMLInputElement>(null);
   const today     = new Date().toLocaleDateString('en-KE', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -399,6 +472,13 @@ export default function BuyerDashboard() {
   const goTab = (t: Tab) => { setTab(t); if (t === 'search') setTimeout(() => searchRef.current?.focus(), 80); };
   const handlePaySuccess = () => { setShowCheckout(false); refetchCart(); setTab('orders'); refetchOrders(); };
 
+  const saveField = async (field: string, value: string) => {
+    const res  = await fetch(`${API}/buyer/profile`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ [field]: value }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to save.');
+    refetchUser();
+  };
+
   return (
     <>
       <style>{`
@@ -412,13 +492,8 @@ export default function BuyerDashboard() {
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
         html,body,#root{height:100%;background:var(--bg);}
         body{-webkit-font-smoothing:antialiased;}
-
-        /* Prevent iOS zoom on input focus */
         input,select,textarea{font-size:16px;}
-
         .bd{display:flex;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font-body);}
-
-        /* ── Sidebar (desktop) ── */
         .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:40;}
         .sidebar-logo{padding:22px 20px;border-bottom:1px solid var(--border);}
         .sidebar nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:3px;overflow-y:auto;}
@@ -428,34 +503,20 @@ export default function BuyerDashboard() {
         .nav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0;}
         .nav-badge{margin-left:auto;background:var(--accent2);color:#fff;font-size:10px;font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
         .sidebar-user{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-
-        /* ── Main ── */
         .main{flex:1;display:flex;flex-direction:column;margin-left:var(--sidebar-w);min-height:100vh;}
-
-        /* ── Topbar ── */
         .topbar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
-
-        /* ── Content ── */
         .content{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:20px;max-width:1200px;width:100%;}
-
-        /* ── Grids ── */
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
         .grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
         .grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
         .order-list{display:flex;flex-direction:column;gap:10px;}
-
-        /* ── Card ── */
         .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
         .card-title{font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-
-        /* ── Pills ── */
         .pill{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-body);transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
         .pill:hover{border-color:var(--accent);color:var(--accent);}
         .pill.on{background:var(--accent);border-color:var(--accent);color:#fff;}
         .pill.danger{border-color:#ef4444;color:#ef4444;}
         .pill.danger:hover{background:rgba(239,68,68,.08);}
-
-        /* ── Search ── */
         .search-wrap{position:relative;}
         .search-box{width:100%;padding:13px 48px;background:var(--card-alt);border:1px solid var(--border);border-radius:13px;color:var(--text);font-family:var(--font-body);font-size:15px;outline:none;transition:border-color .2s;}
         .search-box::placeholder{color:var(--muted);}
@@ -465,137 +526,95 @@ export default function BuyerDashboard() {
         .suggests{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;z-index:50;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.4);}
         .suggest-item{padding:11px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .12s;-webkit-tap-highlight-color:transparent;}
         .suggest-item:hover{background:var(--card-alt);}
-
-        /* ── Filters ── */
         .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
         .filter-row::-webkit-scrollbar{display:none;}
         .fselect{padding:7px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card-alt);color:var(--text);font-family:var(--font-body);font-size:12px;cursor:pointer;outline:none;}
-
-        /* ── Pagination ── */
         .pages{display:flex;gap:6px;align-items:center;justify-content:center;padding-top:8px;flex-wrap:wrap;}
         .page-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;}
         .page-btn:hover{border-color:var(--accent);color:var(--accent);}
         .page-btn.cur{background:var(--accent);border-color:var(--accent);color:#fff;}
         .page-btn:disabled{opacity:.3;cursor:not-allowed;}
-
-        /* ── Notification ── */
         .notif-item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);}
         .notif-item:last-child{border-bottom:none;}
-
-        /* ── Settings ── */
-        .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);gap:12px;}
+        .settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);gap:12px;}
         .settings-row:last-of-type{border-bottom:none;}
-
-        /* ── Avatar ── */
         .avatar{border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;}
-
-        /* ── Cart item ── */
         .cart-item{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);}
         .cart-item:last-child{border-bottom:none;}
         .qty-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--card-alt);color:var(--text);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:700;-webkit-tap-highlight-color:transparent;}
         .qty-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-        /* ── Mobile nav ── */
-        .mob-nav{display:none;}
+        /* ── Checkout bar ── */
+        .checkout-bar{
+          margin-top:18px;padding-top:18px;
+          border-top:1px solid var(--border);
+          background:var(--card-alt);
+          border-radius:14px;
+          padding:16px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:14px;
+        }
+        .checkout-btn{
+          padding:14px 20px;
+          border-radius:12px;border:none;
+          background:#22c55e;color:#fff;
+          font-family:var(--font-display);font-weight:800;font-size:14px;
+          cursor:pointer;
+          display:flex;align-items:center;gap:8px;
+          white-space:nowrap;
+          -webkit-tap-highlight-color:transparent;
+        }
 
-        /* ── Animations ── */
+        .mob-nav{display:none;}
         @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        /* ════════════════════════════════════
-           MOBILE — max-width 768px
-           ════════════════════════════════════ */
         @media(max-width:768px){
-          /* Hide sidebar */
           .sidebar{display:none;}
           .main{margin-left:0;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));}
-
-          /* Topbar */
           .topbar{height:54px;padding:0 12px;}
           .topbar-right-text{display:none;}
-
-          /* Content */
           .content{padding:10px 10px;gap:12px;}
-
-          /* Stats: 2 cols */
           .stats-grid{grid-template-columns:1fr 1fr;gap:8px;}
-
-          /* Product grids: 2 cols */
           .grid-2,.grid-3{grid-template-columns:1fr 1fr;gap:8px;}
-
-          /* Cards */
           .card{padding:12px 12px;border-radius:14px;}
           .card-title{font-size:14px;margin-bottom:14px;}
-
-          /* Search box smaller padding */
           .search-box{padding:12px 44px;font-size:14px;}
           .search-icon{left:13px;font-size:16px;}
 
-          /* Cart items stack qty controls */
-          .cart-item{flex-wrap:wrap;gap:10px;}
-          .cart-item-controls{width:100%;display:flex;justify-content:space-between;align-items:center;}
+          /* Cart checkout bar stacks on mobile */
+          .checkout-bar{flex-direction:column;align-items:stretch;gap:10px;}
+          .checkout-btn{width:100%;justify-content:center;padding:15px;}
 
-          /* Checkout button full-width */
-          .checkout-bar{flex-direction:column;gap:12px;}
-          .checkout-btn{width:100%;}
-
-          /* Welcome text */
           .welcome-text{font-size:18px!important;}
-
-          /* Bottom nav */
           .mob-nav{
-            display:flex;
-            position:fixed;
-            bottom:0;left:0;right:0;
+            display:flex;position:fixed;bottom:0;left:0;right:0;
             height:var(--nav-h);
             padding-bottom:env(safe-area-inset-bottom, 0px);
-            background:var(--card);
-            border-top:1px solid var(--border);
-            z-index:40;
-            overflow-x:auto;
-            scrollbar-width:none;
+            background:var(--card);border-top:1px solid var(--border);
+            z-index:40;overflow-x:auto;scrollbar-width:none;
           }
           .mob-nav::-webkit-scrollbar{display:none;}
           .mob-btn{
-            flex:1 0 auto;
-            min-width:50px;
-            max-width:76px;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:center;
-            gap:3px;
-            border:none;
-            background:transparent;
-            cursor:pointer;
-            color:var(--muted);
-            font-family:var(--font-body);
-            font-size:9px;
-            font-weight:600;
-            position:relative;
-            transition:color .15s;
-            padding:0 4px;
+            flex:1 0 auto;min-width:50px;max-width:76px;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            gap:3px;border:none;background:transparent;cursor:pointer;
+            color:var(--muted);font-family:var(--font-body);font-size:9px;font-weight:600;
+            position:relative;transition:color .15s;padding:0 4px;
             -webkit-tap-highlight-color:transparent;
           }
           .mob-btn.on{color:var(--accent);}
           .mob-btn .bi{font-size:19px;line-height:1;}
           .mob-badge{
-            position:absolute;
-            top:6px;right:calc(50% - 16px);
-            background:var(--accent2);
-            color:#fff;
-            font-size:8px;
-            font-weight:800;
-            border-radius:999px;
-            min-width:15px;height:15px;
-            display:flex;align-items:center;justify-content:center;
-            padding:0 3px;
+            position:absolute;top:6px;right:calc(50% - 16px);
+            background:var(--accent2);color:#fff;font-size:8px;font-weight:800;
+            border-radius:999px;min-width:15px;height:15px;
+            display:flex;align-items:center;justify-content:center;padding:0 3px;
           }
-
-          /* Wishlist items */
           .wishlist-item-img{height:100px!important;}
         }
 
-        /* ── Very small ── */
         @media(max-width:360px){
           .content{padding:8px;gap:10px;}
           .stats-grid{gap:6px;}
@@ -603,7 +622,6 @@ export default function BuyerDashboard() {
           .mob-btn{min-width:42px;font-size:8px;}
         }
 
-        /* ── Tablet ── */
         @media(min-width:769px) and (max-width:1024px){
           :root{--sidebar-w:200px;}
           .content{padding:18px 20px;gap:16px;}
@@ -612,9 +630,18 @@ export default function BuyerDashboard() {
       `}</style>
 
       {showCheckout && <CheckoutModal items={cartItems} total={cartTotal} onClose={() => setShowCheckout(false)} onSuccess={handlePaySuccess} />}
+      {editModal && (
+        <EditModal
+          label={editModal.label}
+          currentValue={editModal.value}
+          field={editModal.field}
+          onClose={() => setEditModal(null)}
+          onSave={(val) => saveField(editModal.field, val)}
+        />
+      )}
+      {showPwModal && <ChangePasswordModal onClose={() => setShowPwModal(false)} />}
 
       <div className="bd">
-        {/* Sidebar (desktop) */}
         <aside className="sidebar">
           <div className="sidebar-logo">
             <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 21 }}>Swift<span style={{ color: 'var(--accent)' }}>Mall</span></div>
@@ -638,7 +665,6 @@ export default function BuyerDashboard() {
           </div>
         </aside>
 
-        {/* Main */}
         <div className="main">
           <header className="topbar">
             <div style={{ minWidth: 0 }}>
@@ -646,12 +672,10 @@ export default function BuyerDashboard() {
               <div style={{ fontSize: 11, color: 'var(--muted)' }}>{today}</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-              {/* Cart icon shortcut — always visible on mobile */}
               <button onClick={() => goTab('cart')} style={{ position: 'relative', background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', fontSize: 17, WebkitTapHighlightColor: 'transparent' }}>
                 🛒
                 {itemCount > 0 && <span style={{ position: 'absolute', top: -5, right: -5, background: 'var(--accent2)', color: '#fff', fontSize: 8, fontWeight: 800, borderRadius: 999, minWidth: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px' }}>{itemCount > 9 ? '9+' : itemCount}</span>}
               </button>
-              {/* Name + email (hidden on mobile via CSS) */}
               <div className="topbar-right-text" style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{user?.name ?? '—'}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)' }}>{user?.email ?? ''}</div>
@@ -687,7 +711,7 @@ export default function BuyerDashboard() {
               </>
             )}
 
-            {/* ── Shop / Search ── */}
+            {/* ── Shop ── */}
             {tab === 'search' && (
               <>
                 <div className="search-wrap">
@@ -775,12 +799,15 @@ export default function BuyerDashboard() {
                         </div>
                       </div>
                     ))}
-                    <div className="checkout-bar" style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
+
+                    {/* ── Checkout bar ── */}
+                    <div className="checkout-bar">
                       <div>
-                        <div style={{ fontSize: 11, color: 'var(--muted)' }}>Total</div>
-                        <div style={{ fontSize: 26, fontWeight: 900, fontFamily: 'var(--font-display)', color: 'var(--accent)', lineHeight: 1.1 }}>{fmt(cartTotal)}</div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Order Total</div>
+                        <div style={{ fontSize: 28, fontWeight: 900, fontFamily: 'var(--font-display)', color: '#22c55e', lineHeight: 1 }}>{fmt(cartTotal)}</div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{itemCount} item{itemCount !== 1 ? 's' : ''}</div>
                       </div>
-                      <button className="checkout-btn" onClick={() => setShowCheckout(true)} style={{ padding: '13px 24px', borderRadius: 12, border: 'none', background: '#22c55e', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, WebkitTapHighlightColor: 'transparent' }}>
+                      <button className="checkout-btn" onClick={() => setShowCheckout(true)}>
                         📱 Pay with M-Pesa
                       </button>
                     </div>
@@ -814,10 +841,7 @@ export default function BuyerDashboard() {
                         return (
                           <div key={item.id} style={{ background: 'var(--card-alt)', border: '1px solid var(--border)', borderRadius: 13, overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
                             <div className="wishlist-item-img" style={{ height: 120, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                              {item.image
-                                ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                : <span style={{ fontSize: 38 }}>{item.emoji}</span>
-                              }
+                              {item.image ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 38 }}>{item.emoji}</span>}
                             </div>
                             {disc > 0 && <span style={{ position: 'absolute', top: 6, right: 6, background: 'var(--accent2)', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 999 }}>{disc}% OFF</span>}
                             <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 7, flex: 1 }}>
@@ -870,34 +894,53 @@ export default function BuyerDashboard() {
                   <div className="avatar" style={{ width: 54, height: 54, fontSize: 19, flexShrink: 0 }}>{user?.initials ?? '?'}</div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name ?? '—'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email ?? '—'}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{user?.email ?? '—'}</div>
                     <div style={{ fontSize: 11, color: 'var(--accent)', marginTop: 3 }}>Buyer Account</div>
                   </div>
                 </div>
+
                 <div className="card">
                   <div className="card-title">Personal Info</div>
-                  {[{ label: 'Full Name', sub: user?.name ?? '—' }, { label: 'Email', sub: user?.email ?? '—' }, { label: 'Phone', sub: user?.phone || 'Not set' }].map(row => (
-                    <div key={row.label} className="settings-row">
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 500 }}>{row.label}</div>
-                        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.sub}</div>
-                      </div>
-                      <button className="pill" style={{ flexShrink: 0 }}>Edit</button>
-                    </div>
-                  ))}
-                </div>
-                <div className="card">
-                  <div className="card-title">Preferences</div>
-                  {[{ label: 'Saved Addresses', sub: 'Manage delivery addresses' }, { label: 'M-Pesa', sub: 'Payment settings' }, { label: 'Notifications', sub: 'Email & SMS preferences' }, { label: 'Password', sub: 'Change your password' }].map(row => (
-                    <div key={row.label} className="settings-row">
+                  {[
+                    { label: 'Username', sub: user?.name ?? '—', field: 'username' },
+                    { label: 'Phone',    sub: user?.phone || 'Not set', field: 'phone' },
+                  ].map(row => (
+                    <div key={row.field} className="settings-row">
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: 14, fontWeight: 500 }}>{row.label}</div>
                         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{row.sub}</div>
                       </div>
-                      <button className="pill" style={{ flexShrink: 0 }}>›</button>
+                      <button className="pill" onClick={() => setEditModal({ label: row.label, value: row.sub === 'Not set' ? '' : row.sub, field: row.field })}>Edit</button>
                     </div>
                   ))}
+                  {/* Email is read-only */}
+                  <div className="settings-row">
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>Email</div>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{user?.email ?? '—'}</div>
+                    </div>
+                    <span style={{ fontSize: 11, color: 'var(--muted)', padding: '7px 14px' }}>Read-only</span>
+                  </div>
                 </div>
+
+                <div className="card">
+                  <div className="card-title">Security & Preferences</div>
+                  <div className="settings-row">
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>Password</div>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Change your account password</div>
+                    </div>
+                    <button className="pill" onClick={() => setShowPwModal(true)}>Change</button>
+                  </div>
+                  <div className="settings-row">
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>Notifications</div>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Order & promo alerts</div>
+                    </div>
+                    <button className="pill" onClick={() => goTab('notifications')}>View</button>
+                  </div>
+                </div>
+
                 <div className="card">
                   <button className="pill danger" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }}
                     style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 14 }}>
@@ -909,7 +952,6 @@ export default function BuyerDashboard() {
           </main>
         </div>
 
-        {/* ── Mobile bottom nav ── */}
         <nav className="mob-nav">
           {navItems.map(n => (
             <button key={n.id} className={`mob-btn${tab === n.id ? ' on' : ''}`} onClick={() => goTab(n.id)}>
