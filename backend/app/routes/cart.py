@@ -29,24 +29,23 @@ def get_cart(current_user):
     items = list(db.cart.find({'buyer_id': current_user['_id']}))
     result = []
     for item in items:
-        # Refresh live price and stock from product
         product = db.products.find_one({'_id': item['product_id']})
         if not product:
-            # Product was deleted — remove from cart silently
             db.cart.delete_one({'_id': item['_id']})
             continue
         result.append({
-            'id':          str(item['_id']),
-            'productId':   str(product['_id']),
-            'name':        product.get('name', ''),
-            'emoji':       product.get('emoji', '🛍'),
-            'price':       product.get('price', 0),
+            'id':            str(item['_id']),
+            'productId':     str(product['_id']),
+            'name':          product.get('name', ''),
+            'emoji':         product.get('emoji', '🛍'),
+            'image':         product.get('image'),
+            'price':         product.get('price', 0),
             'originalPrice': product.get('original_price', product.get('price', 0)),
-            'sellerName':  product.get('seller_name', ''),
-            'sellerId':    str(product.get('seller_id', '')),
-            'stock':       product.get('stock', 0),
-            'quantity':    item.get('quantity', 1),
-            'inStock':     product.get('stock', 0) > 0,
+            'sellerName':    product.get('seller_name', ''),
+            'sellerId':      str(product.get('seller_id', '')),
+            'stock':         product.get('stock', 0),
+            'quantity':      item.get('quantity', 1),
+            'inStock':       product.get('stock', 0) > 0,
         })
     return jsonify(result)
 
@@ -74,7 +73,6 @@ def add_to_cart(current_user):
     if product.get('stock', 0) < quantity:
         return jsonify({'error': f'Only {product.get("stock", 0)} items in stock'}), 400
 
-    # Buyers cannot buy from themselves if they are also sellers
     existing = db.cart.find_one({'buyer_id': current_user['_id'], 'product_id': pid})
     if existing:
         new_qty = existing['quantity'] + quantity
@@ -153,9 +151,9 @@ def clear_cart(current_user):
 @require_buyer
 def place_order(current_user):
     """
-    Place orders for all items currently in the buyer's cart.
-    Each cart item becomes a separate order document (one per product/seller).
-    This allows sellers to manage their orders independently.
+    Creates order documents for all cart items and returns order_ids for M-Pesa.
+    Stock is NOT decremented here — it is decremented in mpesa.py only after
+    payment is confirmed by Safaricom callback.
     """
     data             = request.get_json() or {}
     delivery_address = (data.get('delivery_address') or '').strip()
@@ -176,11 +174,13 @@ def place_order(current_user):
     for item in cart_items:
         product = db.products.find_one({'_id': item['product_id'], 'is_active': True})
 
-        # Validate product still exists and has enough stock
         if not product:
-            errors.append(f'A product in your cart is no longer available.')
+            errors.append('A product in your cart is no longer available.')
             continue
+
         qty = item.get('quantity', 1)
+
+        # Check stock but do NOT decrement yet — wait for payment confirmation
         if product.get('stock', 0) < qty:
             errors.append(
                 f'"{product.get("name", "Item")}" only has {product.get("stock", 0)} left in stock.'
@@ -189,37 +189,28 @@ def place_order(current_user):
 
         amount = product['price'] * qty
 
-        # Create the order — stamped with both buyer and seller
         order = {
-            'buyer_id':        current_user['_id'],
-            'buyer_name':      current_user.get('username', ''),
-            'seller_id':       product['seller_id'],
-            'seller_name':     product.get('seller_name', ''),
-            'product_id':      product['_id'],
-            'product_name':    product.get('name', ''),
-            'emoji':           product.get('emoji', '📦'),
-            'quantity':        qty,
-            'amount':          amount,
-            'unit_price':      product['price'],
+            'buyer_id':         current_user['_id'],
+            'buyer_name':       current_user.get('username', ''),
+            'seller_id':        product['seller_id'],
+            'seller_name':      product.get('seller_name', ''),
+            'product_id':       product['_id'],
+            'product_name':     product.get('name', ''),
+            'emoji':            product.get('emoji', '📦'),
+            'quantity':         qty,
+            'amount':           amount,
+            'unit_price':       product['price'],
             'delivery_address': delivery_address,
-            'phone':           phone,
-            'status':          'processing',
-            'created_at':      datetime.now(timezone.utc),
-            'updated_at':      datetime.now(timezone.utc),
+            'phone':            phone,
+            'status':           'processing',
+            'payment_status':   'pending',   # will become 'paid' after M-Pesa callback
+            'created_at':       datetime.now(timezone.utc),
+            'updated_at':       datetime.now(timezone.utc),
         }
         result = db.orders.insert_one(order)
         created_orders.append(str(result.inserted_id))
 
-        # Decrement stock
-        db.products.update_one(
-            {'_id': product['_id']},
-            {
-                '$inc': {'stock': -qty, 'sold_count': qty},
-                '$set': {'updated_at': datetime.now(timezone.utc)},
-            }
-        )
-
-        # Notify the seller
+        # Notify seller of incoming order
         db.notifications.insert_one({
             'user_id':    product['seller_id'],
             'message':    f'New order for "{product.get("name", "your product")}" from {current_user.get("username", "a buyer")}.',
@@ -231,22 +222,21 @@ def place_order(current_user):
     if not created_orders:
         return jsonify({'error': 'No orders could be placed.', 'details': errors}), 400
 
-    # Clear only the successfully ordered items from the cart
-    successful_product_ids = []
+    # Clear the successfully ordered items from cart immediately
+    ordered_product_ids = []
     for item in cart_items:
-        product = db.products.find_one({'_id': item['product_id']})
+        product = db.products.find_one({'_id': item['product_id'], 'is_active': True})
         if product:
-            successful_product_ids.append(item['product_id'])
+            qty = item.get('quantity', 1)
+            if product.get('stock', 0) >= qty:
+                ordered_product_ids.append(item['product_id'])
 
     db.cart.delete_many({
         'buyer_id':   current_user['_id'],
-        'product_id': {'$in': successful_product_ids},
+        'product_id': {'$in': ordered_product_ids},
     })
 
-    response = {
-        'message':      f'{len(created_orders)} order(s) placed successfully!',
-        'order_ids':    created_orders,
-    }
+    response = {'message': f'{len(created_orders)} order(s) placed!', 'order_ids': created_orders}
     if errors:
         response['warnings'] = errors
 
